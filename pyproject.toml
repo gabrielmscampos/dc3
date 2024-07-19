@@ -1,0 +1,136 @@
+[tool.poetry]
+name = "dc3"
+version = "0.1.0"
+description = ""
+authors = ["Gabriel Moreira <gabrielmscampos@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-decouple = "^3.8"
+psycopg2-binary = "^2.9.9"
+django = "^5.0.7"
+djangorestframework = "^3.15.2"
+django-filter = "^24.2"
+django-cors-headers = "^4.4.0"
+django-debreach = "^2.1.0"
+django-csp = "^3.8"
+django-permissions-policy = "^4.20.0"
+dj-database-url = "^2.2.0"
+gunicorn = "^22.0.0"
+celery = "^5.4.0"
+redis = "^5.0.7"
+paramiko = "^3.4.0"
+beautifulsoup4 = "^4.12.3"
+requests = "^2.32.3"
+runregistry = "^1.2.0"
+scp = "^0.15.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.0"
+poethepoet = "^0.24.4"
+ruff = "^0.3.2"
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "virtualenvs",
+]
+line-length = 120
+indent-width = 4
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pep8-naming
+    "N",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-bandit
+    "S",
+    # flake8-blind-except
+    "BLE",
+    # flake8-builtins
+    "A",
+    # flake8-django
+    "DJ",
+    # isort
+    "I",
+    # flake8-logging-format
+    "G",
+    # flake8-no-pep420
+    "INP",
+    # Ruff-specific rules
+    "RUF"
+]
+ignore = [
+  # Disable eradicate (commented code removal)
+  "ERA001",
+  # Disable Conflicting lint rules,
+  # see https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+  "W191",
+  "E501",
+  "E111",
+  "E117",
+  "D206",
+  "D300",
+  "Q000",
+  "Q001",
+  "Q002",
+  "Q003",
+  "COM812",
+  "COM819",
+  "ISC001",
+  "ISC002",
+  # Disable unused `noqa` directive
+  "RUF100",
+]
+# Allow unused variables when underscore-prefixed:
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.pycodestyle]
+ignore-overlong-task-comments = true
+
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+lines-after-imports = 2
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore "E402", "F403", "F405" (import violations) in __init__.py files.
+# Ignore "S" (flake8-bandit) and "N802" (function name should be lowercase) in tests and docs.
+# Ignore "RUF" (Ruff-specific rules) and "I" (isort) in migrations.
+"__init__.py" = ["E402", "F403", "F405"]
+"**/{tests,docs}/*" = ["E402", "F403", "F405", "S", "N802"]
+"**/*test*.py" = ["E402", "F403", "F405", "S", "N802"]
+"**/{settings}/*" = ["E402", "F403", "F405"]
+"**/migrations/*" = ["RUF", "I"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
