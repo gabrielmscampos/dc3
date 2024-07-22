@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class CallsViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = Call.objects.all().order_by("call_id")
+    queryset = Call.objects.all().order_by("-call_id")
     serializer_class = CallSerializer
 
     def perform_create(self, serializer):
