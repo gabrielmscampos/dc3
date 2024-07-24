@@ -1,0 +1,23 @@
+# For VSCode install the extension: https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig
+# top-most EditorConfig file
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
+
+[*.{js,jsx,css,scss,sass}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
+
+[*.{yml,yaml,json}]
+indent_size = 2
