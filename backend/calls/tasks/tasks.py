@@ -1,63 +1,26 @@
 import os
 import os.path
 
-from celery import Task, shared_task, signals, states
-from celery.result import AsyncResult
+from celery import shared_task
 from django.conf import settings
 
-from .controllers.dcs import DailyDCSJson
-from .controllers.dqmgui import DQMGUI
-from .controllers.lxplus import LXPLusDC3Space
-from .controllers.rr import RunRegistry
-from .controllers.utils import read_json, save_json
-from .models import Call, CallTask
+from ..controllers.dcs import DailyDCSJson
+from ..controllers.dqmgui import DQMGUI
+from ..controllers.lxplus import LXPLusDC3Space
+from ..controllers.rr import RunRegistry
+from ..controllers.utils import read_json, save_json
+from ..models import Call
+from .base import CustomBaseTask
 
 
 DATASETS_TO_CHECK = [
     "/ZeroBias/Run2024.*-PromptReco-v.*?/DQMIO",
-    "/JetMET1/Run2024.*-PromptReco-v.*?/DQMIO",
-    "/Muon1/Run2024.*-PromptReco-v.*?/DQMIO",
+    "/JetMET0/Run2024.*-PromptReco-v.*?/DQMIO",
+    "/Muon0/Run2024.*-PromptReco-v.*?/DQMIO",
+    "/EGamma0/Run2024.*-PromptReco-v.*?/DQMIO",
+    "/HcalNZS/Run2024.*-PromptReco-v.*?/DQMIO",
+    "/HLTPhysics/Run2024.*-PromptReco-v.*?/DQMIO",
 ]
-
-
-class CustomBaseTask(Task):
-    def apply_async(self, args=None, kwargs=None, **options):
-        task_instance = super().apply_async(args=args, kwargs=kwargs, **options)
-        CallTask.objects.create(call_id=args[0], task_id=task_instance.id)
-        return task_instance
-
-
-@signals.task_prerun.connect
-def task_prerun_handler(sender, task_id, task, *args, **kwargs):
-    try:
-        call_task = CallTask.objects.get(task_id=task_id)
-        call_task.status = states.STARTED
-        call_task.save()
-    except CallTask.DoesNotExist:
-        pass
-
-
-@signals.task_postrun.connect
-def task_postrun_handler(sender, task_id, task, args, kwargs, retval, state, **kw):
-    try:
-        task = AsyncResult(task_id)
-        call_task = CallTask.objects.get(task_id=task_id)
-        call_task.status = task.state
-        call_task.save()
-    except CallTask.DoesNotExist:
-        pass
-
-
-@signals.task_failure.connect
-def task_failure_handler(sender, task_id, exception, args, kwargs, traceback, einfo, **kw):
-    try:
-        task = AsyncResult(task_id)
-        call_task = CallTask.objects.get(task_id=task_id)
-        call_task.status = task.state
-        call_task.traceback = str(einfo)
-        call_task.save()
-    except CallTask.DoesNotExist:
-        pass
 
 
 @shared_task(base=CustomBaseTask)
@@ -68,14 +31,14 @@ def setup_call(call_id: int):
 
 
 @shared_task(base=CustomBaseTask)
-def clean_call_space(call_id: int):
+def close_call(call_id: int):
     call = Call.objects.get(pk=call_id)
     lxp = LXPLusDC3Space(settings.KEYTAB_USR, settings.KEYTAB_PWD, str(call.call_id))
     lxp.clean_dqmspace()
 
 
 @shared_task(base=CustomBaseTask)
-def discover_call_runs(call_id: int):
+def discover_runs(call_id: int):
     call = Call.objects.get(pk=call_id)
     results_dir = os.path.join(settings.BASE_RESULTS_DIR, str(call.call_id), "runs")
     if not os.path.exists(results_dir):

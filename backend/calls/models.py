@@ -15,7 +15,7 @@ class CallStatus:
 
 class Call(models.Model):
     call_id = models.AutoField(primary_key=True)
-    call_name = models.CharField(max_length=255)
+    call_name = models.CharField(max_length=255, unique=True)
     dataset_name = models.CharField(max_length=255)
     class_name = models.CharField(max_length=255)
     status = models.CharField(default=CallStatus.OPEN, max_length=255)
@@ -36,9 +36,12 @@ class Call(models.Model):
 
 class CallTask(models.Model):
     id = models.AutoField(primary_key=True)
-    call_id = models.CharField(max_length=255)
+    call_id = models.BigIntegerField()
     task_id = models.CharField(max_length=255, unique=True)
+    task_name = models.CharField(max_length=255)
+    task_args = models.TextField(default="")
     status = models.CharField(max_length=255, default=states.PENDING, choices=TASK_STATE_CHOICES)
+    created_by = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     traceback = models.TextField(default="")
