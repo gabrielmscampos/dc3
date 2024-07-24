@@ -19,12 +19,8 @@ const AppRoutes = () => {
     <Routes>
       <Route path='/' element={<Views.Home.Index />} />
       <Route path='/call'>
-        <Route
-          path=':callId'
-          element={<Views.Home.Call />}
-        />
+        <Route path=':callId' element={<Views.Home.Call />} />
       </Route>
-
     </Routes>
   )
 }

@@ -7,8 +7,8 @@ import { AppNavbar, AppRoutes } from './components'
 const Root = () => {
   return (
     <>
-      <AppNavbar/>
-      <AppRoutes/>
+      <AppNavbar />
+      <AppRoutes />
       <ToastContainer position='bottom-right' />
     </>
   )

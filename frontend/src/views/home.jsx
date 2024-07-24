@@ -68,15 +68,9 @@ const Calls = () => {
         const results = response.results.map((item) => {
           return {
             ...item,
-            created_at: dateFormat(
-              item.created_at,
-              'dd.mm.yyyy hh:mm:ss'
-            ),
-            modified_at: dateFormat(
-              item.modified_at,
-              'dd.mm.yyyy hh:mm:ss'
-            ),
-            keyField: item.call_id
+            created_at: dateFormat(item.created_at, 'dd.mm.yyyy hh:mm:ss'),
+            modified_at: dateFormat(item.modified_at, 'dd.mm.yyyy hh:mm:ss'),
+            keyField: item.call_id,
           }
         })
         setData(results)
@@ -104,31 +98,31 @@ const Calls = () => {
         return [
           document.getElementById('swal-input1').value,
           document.getElementById('swal-input2').value,
-          document.getElementById('swal-input3').value
-        ];
+          document.getElementById('swal-input3').value,
+        ]
       },
       showCancelButton: true,
       confirmButtonText: 'Yes, create it',
-      cancelButtonText: 'Cancel'
-    });
+      cancelButtonText: 'Cancel',
+    })
 
     if (formValues) {
       const [callName, datasetName, className] = formValues
-      let result;
+      let result
 
       try {
         await API.calls.create({ callName, datasetName, className })
         result = await Swal.fire({
           icon: 'success',
           title: 'Success',
-          text: 'The call has been opened!'
+          text: 'The call has been opened!',
         })
       } catch (error) {
         console.log(error)
         result = await Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'There was an issue creating the call'
+          text: 'There was an issue creating the call',
         })
       }
 
@@ -183,21 +177,12 @@ const Calls = () => {
       </Col>
     </Row>
   )
-
 }
 
 const Home = () => {
   const isAuthenticated = true
 
-  return (
-    <Container>
-      { isAuthenticated ? (
-        <Calls />
-      ) : (
-        <LandPage />
-      )}
-    </Container>
-  )
+  return <Container>{isAuthenticated ? <Calls /> : <LandPage />}</Container>
 }
 
 export default Home

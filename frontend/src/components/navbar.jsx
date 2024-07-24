@@ -8,7 +8,6 @@ import Image from 'react-bootstrap/Image'
 import logo from '../assets/img/logo.png'
 
 const AppNavbar = () => {
-
   return (
     <Navbar expand='lg' bg='dark' variant='dark' sticky='top'>
       <Navbar.Brand as={NavLink} to='/'>
@@ -25,13 +24,11 @@ const AppNavbar = () => {
         id='basic-navbar-nav'
         className='justify-content-end me-3'
       >
-          <>
-            <Nav>
-              <Nav.Link className='me-3'>
-                Signed in as: demo
-              </Nav.Link>
-            </Nav>
-          </>
+        <>
+          <Nav>
+            <Nav.Link className='me-3'>Signed in as: demo</Nav.Link>
+          </Nav>
+        </>
       </Navbar.Collapse>
     </Navbar>
   )

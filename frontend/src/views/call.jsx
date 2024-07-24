@@ -17,7 +17,6 @@ import API from '../services/api'
 import { toast } from 'react-toastify'
 
 const CallInfo = ({ call, isLoading }) => {
-
   const handleCloseCallButton = async ({ callId }) => {
     Swal.fire({
       title: 'Are you sure?',
@@ -26,17 +25,31 @@ const CallInfo = ({ call, isLoading }) => {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, close it!'
+      confirmButtonText: 'Yes, close it!',
     }).then((confirmDialog) => {
       if (confirmDialog.isConfirmed) {
         API.calls
           .close({ callId })
           .then((_) => {
-            Swal.fire({ icon: 'success', title: 'Success', text: 'The call has been closed!', willClose: () => { window.location.reload() }})
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'The call has been closed!',
+              willClose: () => {
+                window.location.reload()
+              },
+            })
           })
           .catch((err) => {
             console.error(err)
-            Swal.fire({ icon: 'error', title: 'Error', text: 'There was an issue closing the call!', willClose: () => { window.location.reload() }})
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'There was an issue closing the call!',
+              willClose: () => {
+                window.location.reload()
+              },
+            })
           })
       }
     })
@@ -50,18 +63,31 @@ const CallInfo = ({ call, isLoading }) => {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, run it!'
+      confirmButtonText: 'Yes, run it!',
     }).then((confirmDialog) => {
       if (confirmDialog.isConfirmed) {
-        API.calls
-          .schedule
+        API.calls.schedule
           .discoverRuns({ callId })
           .then((_) => {
-            Swal.fire({ icon: 'success', title: 'Success', text: 'The discover runs job has been scheduled!', willClose: () => { window.location.reload() }})
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'The discover runs job has been scheduled!',
+              willClose: () => {
+                window.location.reload()
+              },
+            })
           })
           .catch((err) => {
             console.error(err)
-            Swal.fire({ icon: 'error', title: 'Error', text: 'There was an issue scheduling the dicover runs job!', willClose: () => { window.location.reload() }})
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'There was an issue scheduling the dicover runs job!',
+              willClose: () => {
+                window.location.reload()
+              },
+            })
           })
       }
     })
@@ -75,23 +101,35 @@ const CallInfo = ({ call, isLoading }) => {
       preConfirm: () => document.getElementById('swal-input1').value,
       showCancelButton: true,
       confirmButtonText: 'Yes, run it',
-      cancelButtonText: 'Cancel'
+      cancelButtonText: 'Cancel',
     }).then((dialog) => {
       if (dialog.isConfirmed) {
-        API.calls
-          .schedule
+        API.calls.schedule
           .generateLumilossPlots({ callId, mode: dialog.value })
           .then((_) => {
-            Swal.fire({ icon: 'success', title: 'Success', text: 'The generated lumiloss plots has been scheduled!', willClose: () => { window.location.reload() }})
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'The generated lumiloss plots has been scheduled!',
+              willClose: () => {
+                window.location.reload()
+              },
+            })
           })
           .catch((err) => {
             console.error(err)
-            Swal.fire({ icon: 'error', title: 'Error', text: 'There was an issue scheduling the lumiloss job!', willClose: () => { window.location.reload() }})
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'There was an issue scheduling the lumiloss job!',
+              willClose: () => {
+                window.location.reload()
+              },
+            })
           })
       }
     })
   }
-
 
   return (
     <>
@@ -121,7 +159,7 @@ const CallInfo = ({ call, isLoading }) => {
               <dt className='col-sm-4'>Modified At:</dt>
               <dd className='col-sm-8'>{call.modified_at}</dd>
             </dl>
-            <hr/>
+            <hr />
             <Button
               className='me-3'
               variant='danger'
@@ -144,7 +182,9 @@ const CallInfo = ({ call, isLoading }) => {
               variant='primary'
               type='submit'
               disabled={call.disabled}
-              onClick={() => handleGenerateLumilossButton({ callId: call.call_id })}
+              onClick={() =>
+                handleGenerateLumilossButton({ callId: call.call_id })
+              }
             >
               Generate lumiloss plots
             </Button>
@@ -155,7 +195,13 @@ const CallInfo = ({ call, isLoading }) => {
   )
 }
 
-const CallTasks = ({ data, totalSize, currentPage, isLoading, onTableChange }) => {
+const CallTasks = ({
+  data,
+  totalSize,
+  currentPage,
+  isLoading,
+  onTableChange,
+}) => {
   const [showModal, setShowModal] = useState(false)
   const [traceback, setTraceback] = useState('')
 
@@ -183,8 +229,8 @@ const CallTasks = ({ data, totalSize, currentPage, isLoading, onTableChange }) =
         ) : (
           row.status
         )
-      }
-    }
+      },
+    },
   ]
 
   return (
@@ -215,8 +261,12 @@ const CallTasks = ({ data, totalSize, currentPage, isLoading, onTableChange }) =
         </Card.Body>
       </Card>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton><Modal.Title>Traceback</Modal.Title></Modal.Header>
-        <Modal.Body><pre>{traceback}</pre></Modal.Body>
+        <Modal.Header closeButton>
+          <Modal.Title>Traceback</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <pre>{traceback}</pre>
+        </Modal.Body>
       </Modal>
     </>
   )
@@ -224,13 +274,13 @@ const CallTasks = ({ data, totalSize, currentPage, isLoading, onTableChange }) =
 
 const Call = () => {
   const { callId } = useParams()
-  const [ isCallLoading, setIsCallLoading ] = useState(true)
-  const [ isCallTasksLoading, setIsCallTasksLoading ] = useState(true)
+  const [isCallLoading, setIsCallLoading] = useState(true)
+  const [isCallTasksLoading, setIsCallTasksLoading] = useState(true)
 
-  const [ call, setCall ] = useState()
-  const [ callTasks, setCallTasks ] = useState()
-  const [ totalTasks, setTotalTasks ] = useState()
-  const [ currentTasksPage, setCurrentTasksPage ] = useState(1)
+  const [call, setCall] = useState()
+  const [callTasks, setCallTasks] = useState()
+  const [totalTasks, setTotalTasks] = useState()
+  const [currentTasksPage, setCurrentTasksPage] = useState(1)
 
   const fetchCall = ({ callId }) => {
     setIsCallLoading(true)
@@ -240,16 +290,10 @@ const Call = () => {
       })
       .then((response) => {
         const results = {
-            ...response,
-            created_at: dateFormat(
-              response.created_at,
-              'dd.mm.yyyy hh:mm:ss'
-            ),
-            modified_at: dateFormat(
-              response.modified_at,
-              'dd.mm.yyyy hh:mm:ss'
-            ),
-            disabled: response.status === 'CLOSED' ? 'true' : ''
+          ...response,
+          created_at: dateFormat(response.created_at, 'dd.mm.yyyy hh:mm:ss'),
+          modified_at: dateFormat(response.modified_at, 'dd.mm.yyyy hh:mm:ss'),
+          disabled: response.status === 'CLOSED' ? 'true' : '',
         }
         setCall(results)
       })
@@ -273,15 +317,9 @@ const Call = () => {
         const results = response.results.map((item) => {
           return {
             ...item,
-            created_at: dateFormat(
-              item.created_at,
-              'dd.mm.yyyy hh:mm:ss'
-            ),
-            modified_at: dateFormat(
-              item.modified_at,
-              'dd.mm.yyyy hh:mm:ss'
-            ),
-            keyField: item.id
+            created_at: dateFormat(item.created_at, 'dd.mm.yyyy hh:mm:ss'),
+            modified_at: dateFormat(item.modified_at, 'dd.mm.yyyy hh:mm:ss'),
+            keyField: item.id,
           }
         })
         setCallTasks(results)
@@ -305,14 +343,11 @@ const Call = () => {
   return (
     <Container>
       <Row className='mt-5 mb-3 m-3'>
-        <Col md={3}/>
+        <Col md={3} />
         <Col md={6}>
-          <CallInfo
-            call={call}
-            isLoading={isCallLoading}
-          />
+          <CallInfo call={call} isLoading={isCallLoading} />
         </Col>
-        <Col md={3}/>
+        <Col md={3} />
       </Row>
       <Row className='mt-2 mb-3 m-3'>
         <Col md={12}>
@@ -322,14 +357,13 @@ const Call = () => {
             currentPage={currentTasksPage}
             isLoading={isCallTasksLoading}
             onTableChange={(type, { page }) => {
-                if (type === 'pagination') {
-                  fetchCallTasks({
-                    page,
-                    callId
-                  })
-                }
+              if (type === 'pagination') {
+                fetchCallTasks({
+                  page,
+                  callId,
+                })
               }
-            }
+            }}
           />
         </Col>
       </Row>

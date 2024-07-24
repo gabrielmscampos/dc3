@@ -4,7 +4,7 @@ import Call from './call'
 const Views = {
   Home: {
     Index: Home,
-    Call
+    Call,
   },
 }
 

@@ -26,6 +26,4 @@ const sanitizedURLSearchParams = (values, { repeatMode }) => {
   return params
 }
 
-export {
-  sanitizedURLSearchParams
-}
+export { sanitizedURLSearchParams }

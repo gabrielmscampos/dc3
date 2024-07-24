@@ -37,17 +37,13 @@ const listCalls = async ({ page }) => {
   return response.data
 }
 
-
 const createCall = async ({ callName, datasetName, className }) => {
   const endpoint = `${API_URL}/calls/`
-  const response = await axiosApiInstance.post(
-    endpoint,
-    {
-      call_name: callName,
-      dataset_name: datasetName,
-      class_name: className,
-    }
-  )
+  const response = await axiosApiInstance.post(endpoint, {
+    call_name: callName,
+    dataset_name: datasetName,
+    class_name: className,
+  })
   return response.data
 }
 
@@ -65,14 +61,11 @@ const scheduleDiscoverRuns = async ({ callId }) => {
 
 const scheduleGenerateLumilossPlots = async ({ callId, mode, removeRuns }) => {
   const endpoint = `${API_URL}/calls/generate-lumiloss-plots/`
-  const response = await axiosApiInstance.post(
-    endpoint,
-    {
-      call_id: callId,
-      mode,
-      remove_runs: removeRuns
-    }
-  )
+  const response = await axiosApiInstance.post(endpoint, {
+    call_id: callId,
+    mode,
+    remove_runs: removeRuns,
+  })
   return response.data
 }
 
@@ -99,11 +92,11 @@ const API = {
     schedule: {
       discoverRuns: scheduleDiscoverRuns,
       generateLumilossPlots: scheduleGenerateLumilossPlots,
-    }
+    },
   },
   callsTasks: {
-    list: listCallsTasks
-  }
+    list: listCallsTasks,
+  },
 }
 
 export default API
