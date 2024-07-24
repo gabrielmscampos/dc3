@@ -1,5 +1,6 @@
 from typing import ClassVar
 
+from django.conf import settings
 from rest_framework import serializers
 
 from .models import Call, CallTask
@@ -18,7 +19,7 @@ class CallSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         has_user = request and hasattr(request, "user")
         username = request.user.username if has_user else None
-        return username if username else "demo"
+        return username if username else settings.UNAUTHENTICATED_USER
 
     def create(self, validated_data):
         username = self.current_user()

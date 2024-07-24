@@ -1,6 +1,7 @@
 import logging
 from typing import ClassVar
 
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -23,14 +24,13 @@ class CallsViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    unauthenticated_user = "demo"
     queryset = Call.objects.all().order_by("-call_id")
     serializer_class = CallSerializer
 
     def current_user(self):
         has_user = self.request and hasattr(self.request, "user")
         username = self.request.user.username if has_user else None
-        return username if username else "demo"
+        return username if username else settings.UNAUTHENTICATED_USER
 
     def raise_if_closed(self, from_obj: bool = True, pk=None):
         call = self.get_object() if from_obj else Call.objects.get(pk=pk)
