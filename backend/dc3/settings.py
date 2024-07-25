@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     # "django_celery_results",
     "corsheaders",
     "calls.apps.CallsConfig",
+    "files.apps.FilesConfig",
 ]
 
 # Django Rest Framework (DRF) configuration
