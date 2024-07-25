@@ -20,6 +20,7 @@ const AppRoutes = () => {
       <Route path='/' element={<Views.Home.Index />} />
       <Route path='/call'>
         <Route path=':callId' element={<Views.Home.Call />} />
+        <Route path=':callId/files' element={<Views.Home.FileBrowser />} />
       </Route>
     </Routes>
   )

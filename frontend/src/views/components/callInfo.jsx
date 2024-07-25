@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { Link } from 'react-router-dom'
 import Card from 'react-bootstrap/Card'
 import Spinner from 'react-bootstrap/Spinner'
 import Button from 'react-bootstrap/Button'
@@ -170,6 +171,7 @@ const CallInfo = ({ call, isLoading }) => {
               Discover runs
             </Button>
             <Button
+              className='me-3'
               variant='primary'
               type='submit'
               disabled={call.disabled}
@@ -179,6 +181,11 @@ const CallInfo = ({ call, isLoading }) => {
             >
               Generate lumiloss plots
             </Button>
+            <Link to={`/call/${call.call_id}/files`}>
+              <Button variant='primary' type='submit'>
+                Filebrowser
+              </Button>
+            </Link>
           </Card.Body>
         </Card>
       )}

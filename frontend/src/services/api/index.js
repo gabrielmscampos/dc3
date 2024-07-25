@@ -83,6 +83,38 @@ const listCallsTasks = async ({ page, callId, taskId }) => {
   return response.data
 }
 
+const listFiles = async ({ dir }) => {
+  const endpoint = `${API_URL}/files/`
+  const params = sanitizedURLSearchParams(
+    {
+      dir,
+    },
+    { repeatMode: false }
+  )
+  const response = await axiosApiInstance.get(endpoint, { params })
+  return response.data
+}
+
+const getFileContent = async ({ path }) => {
+  const endpoint = `${API_URL}/files/content/`
+  const params = sanitizedURLSearchParams(
+    {
+      path,
+    },
+    { repeatMode: false }
+  )
+  const response = await axiosApiInstance.get(endpoint, {
+    params,
+    responseType: 'blob',
+  })
+  return response
+}
+
+const downloadFileUrl = ({ path }) => {
+  const params = sanitizedURLSearchParams({ path }, { repeatMode: false })
+  return `${API_URL}/files/download/?path=${params.get('path')}`
+}
+
 const API = {
   calls: {
     get: getCall,
@@ -96,6 +128,11 @@ const API = {
   },
   callsTasks: {
     list: listCallsTasks,
+  },
+  files: {
+    list: listFiles,
+    getContent: getFileContent,
+    downloadUrl: downloadFileUrl,
   },
 }
 

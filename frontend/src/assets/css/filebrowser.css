@@ -1,0 +1,32 @@
+.file-browser-container {
+  height: calc(100vh - 56px);
+  overflow: hidden;
+}
+
+.file-browser-row {
+  height: 100%;
+}
+
+.file-browser-left {
+  height: 100%;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+  padding-bottom: 60px
+}
+
+.file-browser-right {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 10px;
+  padding-bottom: 60px
+}
+
+.file-browser-right img {
+  max-width: 100%;
+}
+
+.file-browser-right pre {
+  white-space: pre-wrap;
+}
