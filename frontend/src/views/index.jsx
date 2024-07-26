@@ -3,11 +3,9 @@ import Call from './call'
 import FileBrowser from './filebrowser'
 
 const Views = {
-  Home: {
-    Index: Home,
-    Call,
-    FileBrowser,
-  },
+  Home,
+  Call,
+  FileBrowser
 }
 
 export default Views

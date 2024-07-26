@@ -17,10 +17,10 @@ import Views from '../views'
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path='/' element={<Views.Home.Index />} />
+      <Route path='/' element={<Views.Home />} />
       <Route path='/call'>
-        <Route path=':callId' element={<Views.Home.Call />} />
-        <Route path=':callId/files' element={<Views.Home.FileBrowser />} />
+        <Route path=':callId' element={<Views.Call />} />
+        <Route path=':callId/files' element={<Views.FileBrowser />} />
       </Route>
     </Routes>
   )
