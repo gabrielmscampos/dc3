@@ -50,21 +50,21 @@ def discover_runs(call_id: int):
     other_run_numbers = rr.get_next_call_runs(not_in_run_numbers, call.class_name, call.dataset_name)
     save_json(os.path.join(results_dir, "runs_from_rr.json"), other_run_numbers)
 
-    # Filter out runs not found in DCS json
-    dcs = DailyDCSJson(call.class_name)
-    dcs_json = dcs.download(latest=True)
-    runs_to_include = [run for run in other_run_numbers if str(run) in dcs_json.keys()]
-    runs_not_in_dcs_json = [run for run in other_run_numbers if str(run) not in dcs_json.keys()]
-    runs_not_in_dcs_json = {"filename": dcs.latest.get("name"), "runs": runs_not_in_dcs_json}
-    save_json(os.path.join(results_dir, "runs_not_in_dcs.json"), runs_not_in_dcs_json)
-
     # Filter out runs with low luminosity using Brilcalc
     lxp = LXPLusDC3Space(settings.KEYTAB_USR, settings.KEYTAB_PWD, str(call.call_id))
-    stdout, stderr = lxp.run_brilcalc_checkminimum(runs_to_include)
+    stdout, stderr = lxp.run_brilcalc_checkminimum(other_run_numbers)
     low_stat_runs = lxp.parse_brilcalc_checkminimum(stdout)
     save_json(os.path.join(results_dir, "low_stat_runs.json"), low_stat_runs)
     low_stat_runs = [r.get("run_number") for r in low_stat_runs]
-    runs_to_include = [run for run in runs_to_include if str(run) not in low_stat_runs]
+    runs_to_include = [run for run in other_run_numbers if str(run) not in low_stat_runs]
+
+    # Filter out runs not found in DCS json
+    dcs = DailyDCSJson(call.class_name)
+    dcs_json = dcs.download(latest=True)
+    runs_to_include = [run for run in runs_to_include if str(run) in dcs_json.keys()]
+    runs_not_in_dcs_json = [run for run in runs_to_include if str(run) not in dcs_json.keys()]
+    runs_not_in_dcs_json = {"filename": dcs.latest.get("name"), "runs": runs_not_in_dcs_json}
+    save_json(os.path.join(results_dir, "runs_not_in_dcs.json"), runs_not_in_dcs_json)
 
     # Filter out runs which any dataset in datasets list is not yet in DQMGUI
     runs_not_in_gui_by_dt = {}
