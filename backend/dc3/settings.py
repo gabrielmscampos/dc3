@@ -36,10 +36,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
     "rest_framework",
-    # "django_celery_results",
     "corsheaders",
     "calls.apps.CallsConfig",
     "files.apps.FilesConfig",
+    "cern_auth.apps.CERNAuthConfig",
 ]
 
 # Django Rest Framework (DRF) configuration
@@ -85,7 +85,6 @@ WSGI_APPLICATION = "dc3.wsgi.application"
 DB_SERVER_URI = config("DJANGO_DATABASE_URI")
 DATABASES = {"default": dj_database_url.config(default=DB_SERVER_URI)}
 
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = []
 
@@ -123,6 +122,13 @@ STATIC_URL = "static/"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Keycloak OIDC config
+KEYCLOAK_SERVER_URL = config("DJANGO_KEYCLOAK_SERVER_URL")
+KEYCLOAK_REALM = config("DJANGO_KEYCLOAK_REALM")
+KEYCLOAK_CONFIDENTIAL_CLIENT_ID = config("DJANGO_KEYCLOAK_CONFIDENTIAL_CLIENT_ID")
+KEYCLOAK_CONFIDENTIAL_SECRET_KEY = config("DJANGO_KEYCLOAK_CONFIDENTIAL_SECRET_KEY")
+KEYCLOAK_PUBLIC_CLIENT_ID = config("DJANGO_KEYCLOAK_PUBLIC_CLIENT_ID")
 
 # All available policies are listed at:
 # https://github.com/w3c/webappsec-permissions-policy/blob/main/features.md
@@ -181,5 +187,6 @@ KEY_FPATH = config("DJANGO_KEY_FPATH")
 RR_SSO_CLIENT_ID = config("DJANGO_RR_SSO_CLIENT_ID")
 RR_SSO_CLIENT_SECRET = config("DJANGO_RR_SSO_CLIENT_SECRET")
 
+# RR api client package requires exactly those two env variables to worl
 os.environ["SSO_CLIENT_ID"] = RR_SSO_CLIENT_ID
 os.environ["SSO_CLIENT_SECRET"] = RR_SSO_CLIENT_SECRET

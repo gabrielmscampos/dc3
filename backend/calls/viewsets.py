@@ -4,9 +4,13 @@ from typing import ClassVar
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
+from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from utils.rest_framework_cern_sso.authentication import (
+    CERNKeycloakConfidentialAuthentication,
+)
 
 from .filters import CallTaskFilter
 from .models import Call, CallStatus, CallTask
@@ -26,6 +30,9 @@ class CallsViewSet(
 ):
     queryset = Call.objects.all().order_by("-call_id")
     serializer_class = CallSerializer
+    authentication_classes: ClassVar[list[BaseAuthentication]] = [
+        CERNKeycloakConfidentialAuthentication,
+    ]
 
     def current_user(self):
         has_user = self.request and hasattr(self.request, "user")
