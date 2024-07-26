@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
 import { Link } from 'react-router-dom'
+import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
@@ -113,45 +114,47 @@ const Calls = () => {
   }, [])
 
   return (
-    <Row className='mt-5 mb-3 m-3'>
-      <Col sm={12}>
-        <Button
-          className='mb-3'
-          variant='primary'
-          type='submit'
-          onClick={handleCreateButton}
-        >
-          Create call
-        </Button>
-        <Card className='text-center'>
-          <Card.Body>
-            <Table
-              keyField='keyField'
-              isLoading={isLoading}
-              data={data}
-              columns={columns}
-              bordered={false}
-              hover={true}
-              remote
-              onTableChange={(type, { page }) => {
-                if (type === 'pagination') {
-                  fetchData({
-                    page,
-                  })
-                }
-              }}
-              pagination={paginationFactory({
-                totalSize,
-                sizePerPage: 10,
-                page: currentPage,
-                hideSizePerPage: true,
-                showTotal: true,
-              })}
-            />
-          </Card.Body>
-        </Card>
-      </Col>
-    </Row>
+    <Container>
+      <Row className='mt-5 mb-3 m-3'>
+        <Col sm={12}>
+          <Button
+            className='mb-3'
+            variant='primary'
+            type='submit'
+            onClick={handleCreateButton}
+          >
+            Create call
+          </Button>
+          <Card className='text-center'>
+            <Card.Body>
+              <Table
+                keyField='keyField'
+                isLoading={isLoading}
+                data={data}
+                columns={columns}
+                bordered={false}
+                hover={true}
+                remote
+                onTableChange={(type, { page }) => {
+                  if (type === 'pagination') {
+                    fetchData({
+                      page,
+                    })
+                  }
+                }}
+                pagination={paginationFactory({
+                  totalSize,
+                  sizePerPage: 10,
+                  page: currentPage,
+                  hideSizePerPage: true,
+                  showTotal: true,
+                })}
+              />
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   )
 }
 

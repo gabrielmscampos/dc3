@@ -1,13 +1,16 @@
 import axios from 'axios'
 
 import { sanitizedURLSearchParams } from '../../utils/sanitizer'
+import { getPublicToken, getConfidentialToken } from '../../utils/userTokens'
 import { API_URL } from '../../config/env'
 
 const axiosApiInstance = axios.create()
 
 axiosApiInstance.interceptors.request.use(
   async (config) => {
+    const oidc = getConfidentialToken()
     config.headers = {
+      Authorization: `${oidc.tokenType} ${oidc.accessToken}`,
       Accept: 'application/json',
     }
     return config
@@ -16,6 +19,22 @@ axiosApiInstance.interceptors.request.use(
     Promise.reject(error)
   }
 )
+
+const exchangeToken = async () => {
+  const oidc = getPublicToken()
+  const endpoint = `${API_URL}/auth/exchange-token/`
+  const response = await axios.post(
+    endpoint,
+    {},
+    {
+      headers: {
+        Authorization: `${oidc.tokenType} ${oidc.accessToken}`,
+        Accept: 'application/json',
+      },
+    }
+  )
+  return response.data
+}
 
 const getCall = async ({ callId }) => {
   const endpoint = `${API_URL}/calls/${callId}/`
@@ -116,6 +135,9 @@ const downloadFileUrl = ({ path }) => {
 }
 
 const API = {
+  auth: {
+    exchange: exchangeToken,
+  },
   calls: {
     get: getCall,
     create: createCall,

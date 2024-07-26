@@ -7,14 +7,18 @@ import 'react-toastify/dist/ReactToastify.css'
 import React from 'react'
 
 import ReactDOM from 'react-dom/client'
+import { AuthProvider } from 'react-oidc-context'
 import { BrowserRouter } from 'react-router-dom'
 
+import oidcConfig from './config/oidc'
 import Root from './root'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Root />
-    </BrowserRouter>
+    <AuthProvider {...oidcConfig}>
+      <BrowserRouter>
+        <Root />
+      </BrowserRouter>
+    </AuthProvider>
   </React.StrictMode>
 )
