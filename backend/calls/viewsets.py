@@ -82,12 +82,15 @@ class CallsViewSet(
     def generate_lumiloss_plots(self, request):
         call_id = request.data.get("call_id")
         mode = request.data.get("mode")
-        remove_runs = request.data.get("remove_runs", [])
+        runs = request.data.get("runs", [])
+
+        if len(runs) == 0:
+            raise ValidationError("Input runs not included.")
 
         self.raise_if_closed(from_obj=False, pk=call_id)
         task_function = generate_lumiloss_plots
         task = task_function.apply_async(
-            args=[call_id, mode, remove_runs],
+            args=[call_id, mode, runs],
             task_name=task_function.__name__,
             call_id=call_id,
             username=self.current_user(),
