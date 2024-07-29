@@ -78,12 +78,12 @@ const scheduleDiscoverRuns = async ({ callId }) => {
   return response.data
 }
 
-const scheduleGenerateLumilossPlots = async ({ callId, mode, removeRuns }) => {
+const scheduleGenerateLumilossPlots = async ({ callId, mode, runs }) => {
   const endpoint = `${API_URL}/calls/generate-lumiloss-plots/`
   const response = await axiosApiInstance.post(endpoint, {
     call_id: callId,
     mode,
-    remove_runs: removeRuns,
+    runs,
   })
   return response.data
 }

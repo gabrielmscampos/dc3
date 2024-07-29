@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col'
 
 import CallInfo from './components/callInfo'
 import CallTasks from './components/callTasks'
+import CallActions from './components/callActions'
 import dateFormat from '../utils/date'
 import API from '../services/api'
 import { toast } from 'react-toastify'
@@ -82,11 +83,18 @@ const Call = () => {
   return (
     <Container>
       <Row className='mt-5 mb-3 m-3'>
-        <Col md={3} />
-        <Col md={6}>
+        <Col md={1} />
+        <Col md={5}>
           <CallInfo call={call} isLoading={isCallLoading} />
         </Col>
-        <Col md={3} />
+        <Col md={5}>
+          <CallActions
+            callId={call?.call_id}
+            disabled={call?.disabled}
+            isLoading={isCallLoading}
+          />
+        </Col>
+        <Col md={1} />
       </Row>
       <Row className='mt-2 mb-3 m-3'>
         <Col md={12}>
