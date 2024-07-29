@@ -73,7 +73,7 @@ def discover_runs(call_id: int):
         [runs_to_include.remove(run) for run in runs_not_in_gui if run in runs_to_include]
 
     save_json(os.path.join(results_dir, "runs_not_in_gui.json"), runs_not_in_gui_by_dt)
-    save_json(os.path.join(results_dir, "included_runs.json"), runs_to_include)
+    save_json(os.path.join(results_dir, "base_included_runs.json"), runs_to_include)
 
 
 @shared_task(base=CustomBaseTask)
