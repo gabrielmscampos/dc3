@@ -1,4 +1,3 @@
-import traceback
 from importlib import util as importlib_util
 
 from django.conf import settings
@@ -73,7 +72,6 @@ class CERNKeycloakBearerAuthentication(BaseAuthentication):
         except JWTNotYetValid as err:
             raise AuthenticationFailed("Access token not yet valid.", "access_token_not_yet_valid") from err
         except Exception as err:  # noqa: BLE001
-            print(traceback.format_exc())
             raise AuthenticationFailed("Unexpected error validating token.", "access_token_unexpected_error") from err
 
         return CERNKeycloakUser(token), token

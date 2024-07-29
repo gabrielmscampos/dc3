@@ -27,8 +27,6 @@ class AuthViewSet(ViewSet):
         # so we don't need to ask a subject token trough the request body
         user: CERNKeycloakUser = request.user
         subject_token = user.token.access_token
-        print(subject_token)
         confidential_token = user.token.client.exchange_token(subject_token, settings.KEYCLOAK_CONFIDENTIAL_CLIENT_ID)
-        print(confidential_token)
         payload = ExchangedTokenSerializer(confidential_token).data
         return Response(payload)
