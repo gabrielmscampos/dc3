@@ -8,7 +8,7 @@ from ..controllers.dcs import DailyDCSJson
 from ..controllers.dqmgui import DQMGUI
 from ..controllers.lxplus import LXPLusDC3Space
 from ..controllers.rr import RunRegistry
-from ..controllers.utils import read_json, save_json
+from ..controllers.utils import save_json
 from ..models import Call
 from .base import CustomBaseTask
 
@@ -77,13 +77,9 @@ def discover_runs(call_id: int):
 
 
 @shared_task(base=CustomBaseTask)
-def generate_lumiloss_plots(call_id: int, mode: str, remove_runs: list[int]):
+def generate_lumiloss_plots(call_id: int, mode: str, runs: list[int]):
     call = Call.objects.get(pk=call_id)
     results_dir = os.path.join(settings.BASE_RESULTS_DIR, str(call.call_id))
-    runs_dir = os.path.join(results_dir, "runs")
-    included_runs = read_json(os.path.join(runs_dir, "included_runs.json"))
-    included_runs = [run for run in included_runs if run not in remove_runs]
-    save_json(os.path.join(runs_dir, "final_included_runs.json"), included_runs)
 
     lxp = LXPLusDC3Space(
         settings.KEYTAB_USR,
@@ -92,7 +88,5 @@ def generate_lumiloss_plots(call_id: int, mode: str, remove_runs: list[int]):
         settings.RR_SSO_CLIENT_ID,
         settings.RR_SSO_CLIENT_SECRET,
     )
-    lxp.run_allsteps_lumiloss(
-        mode=mode, run_numbers=included_runs, dataset_name=call.dataset_name, class_name=call.class_name
-    )
+    lxp.run_allsteps_lumiloss(mode=mode, run_numbers=runs, dataset_name=call.dataset_name, class_name=call.class_name)
     lxp.download_lumiloss_results(mode, results_dir)
