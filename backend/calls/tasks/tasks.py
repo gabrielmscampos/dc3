@@ -25,15 +25,13 @@ DATASETS_TO_CHECK = [
 
 @shared_task(base=CustomBaseTask)
 def setup_call(call_id: int):
-    call = Call.objects.get(pk=call_id)
-    lxp = LXPLusDC3Space(settings.KEYTAB_USR, settings.KEYTAB_PWD, str(call.call_id))
+    lxp = LXPLusDC3Space(settings.KEYTAB_USR, settings.KEYTAB_PWD, str(call_id))
     lxp.clone_dqmspace()
 
 
 @shared_task(base=CustomBaseTask)
 def close_call(call_id: int):
-    call = Call.objects.get(pk=call_id)
-    lxp = LXPLusDC3Space(settings.KEYTAB_USR, settings.KEYTAB_PWD, str(call.call_id))
+    lxp = LXPLusDC3Space(settings.KEYTAB_USR, settings.KEYTAB_PWD, str(call_id))
     lxp.clean_dqmspace()
 
 
