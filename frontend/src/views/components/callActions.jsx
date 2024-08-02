@@ -197,7 +197,7 @@ const CallActions = ({ callId, disabled, isLoading }) => {
                 <Button
                   variant='primary'
                   type='submit'
-                  disabled={disabled || isIncludedRunsAvailable}
+                  disabled={disabled}
                   onClick={() => handleDiscoverRunsButton({ callId })}
                 >
                   Discover runs
