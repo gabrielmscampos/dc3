@@ -59,9 +59,9 @@ def discover_runs(call_id: int):
     # Filter out runs not found in DCS json
     dcs = DailyDCSJson(call.class_name)
     dcs_json = dcs.download(latest=True)
-    runs_to_include = [run for run in runs_to_include if str(run) in dcs_json.keys()]
     runs_not_in_dcs_json = [run for run in runs_to_include if str(run) not in dcs_json.keys()]
     runs_not_in_dcs_json = {"filename": dcs.latest.get("name"), "runs": runs_not_in_dcs_json}
+    runs_to_include = [run for run in runs_to_include if str(run) in dcs_json.keys()]
     save_json(os.path.join(results_dir, "runs_not_in_dcs.json"), runs_not_in_dcs_json)
 
     # Filter out runs which any dataset in datasets list is not yet in DQMGUI
