@@ -19,7 +19,7 @@ class FileViewSet(viewsets.ViewSet):
     ]
 
     def is_safe_path(self, base_dir, path):
-        absolute_path = os.path.abspath(os.path.join(base_dir, path))
+        absolute_path = os.path.abspath(path)
         return absolute_path.startswith(os.path.abspath(base_dir))
 
     def list(self, request):
@@ -27,13 +27,12 @@ class FileViewSet(viewsets.ViewSet):
         if not self.is_safe_path(settings.BASE_RESULTS_DIR, dir_path):
             return Response({"error": "Invalid directory path"}, status=status.HTTP_400_BAD_REQUEST)
 
-        full_path = os.path.join(settings.BASE_RESULTS_DIR, dir_path)
-        if not os.path.exists(full_path):
+        if not os.path.exists(dir_path):
             return Response({"error": "Directory does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
         files = []
-        for entry in os.listdir(full_path):
-            entry_path = os.path.join(full_path, entry)
+        for entry in os.listdir(dir_path):
+            entry_path = os.path.join(dir_path, entry)
             files.append(
                 {
                     "name": entry,
@@ -51,13 +50,12 @@ class FileViewSet(viewsets.ViewSet):
         if not self.is_safe_path(settings.BASE_RESULTS_DIR, file_path):
             return Response({"error": "Invalid directory path"}, status=status.HTTP_400_BAD_REQUEST)
 
-        full_path = os.path.join(settings.BASE_RESULTS_DIR, file_path)
-        if not os.path.exists(full_path):
+        if not os.path.exists(file_path):
             return Response({"error": "File does not exist"}, status=status.HTTP_404_NOT_FOUND)
-        if not os.path.isfile(full_path):
+        if not os.path.isfile(file_path):
             return Response({"error": "Entry is not a file"}, status=status.HTTP_404_NOT_FOUND)
 
-        file_extension = os.path.splitext(full_path)[1].lower()
+        file_extension = os.path.splitext(file_path)[1].lower()
         mime_types = {
             ".json": "application/json",
             ".txt": "text/plain",
@@ -68,9 +66,9 @@ class FileViewSet(viewsets.ViewSet):
         }
 
         if file_extension in [".png", ".jpg", ".jpeg"]:
-            return FileResponse(open(full_path, "rb"), content_type=mime_types[file_extension])
+            return FileResponse(open(file_path, "rb"), content_type=mime_types[file_extension])
         else:
-            with open(full_path) as file:
+            with open(file_path) as file:
                 content = file.read()
             return HttpResponse(content, content_type=mime_types.get(file_extension, "text/plain"))
 
@@ -80,8 +78,7 @@ class FileViewSet(viewsets.ViewSet):
         if not self.is_safe_path(settings.BASE_RESULTS_DIR, file_path):
             return Response({"error": "Invalid directory path"}, status=status.HTTP_400_BAD_REQUEST)
 
-        full_path = os.path.join(settings.BASE_RESULTS_DIR, file_path)
-        if not os.path.exists(full_path):
+        if not os.path.exists(file_path):
             return Response({"error": "File does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-        return FileResponse(open(full_path, "rb"), as_attachment=True)
+        return FileResponse(open(file_path, "rb"), as_attachment=True)

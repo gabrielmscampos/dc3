@@ -1,10 +1,5 @@
-from .signals import *
-from .tasks import close_call, discover_runs, generate_lumiloss_plots, setup_call
+from .discover_runs import discover_runs_task
+from .run_full_certification import run_full_certification_task
 
 
-__all__ = [
-    "close_call",
-    "setup_call",
-    "discover_runs",
-    "generate_lumiloss_plots",
-]
+__all__ = ["discover_runs_task", "run_full_certification_task"]

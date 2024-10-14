@@ -1,4 +1,6 @@
 import logging
+import os
+import uuid
 from typing import ClassVar
 
 from django.conf import settings
@@ -6,16 +8,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from utils.rest_framework_cern_sso.authentication import (
     CERNKeycloakConfidentialAuthentication,
 )
 
-from .filters import CallTaskFilter
-from .models import Call, CallStatus, CallTask
-from .serializers import CallSerializer, CallTaskSerializer
-from .tasks import close_call, discover_runs, generate_lumiloss_plots, setup_call
+from .filters import CallJobsFilter
+from .models import Call, CallJob
+from .serializers import CallJobSerializer, CallSerializer
+from .tasks import discover_runs_task, run_full_certification_task
+from .utils import block_if_closed
 
 
 logger = logging.getLogger(__name__)
@@ -34,72 +36,57 @@ class CallsViewSet(
         CERNKeycloakConfidentialAuthentication,
     ]
 
-    def current_user(self):
-        has_user = self.request and hasattr(self.request, "user")
-        username = self.request.user.username if has_user else None
-        return username if username else settings.UNAUTHENTICATED_USER
+    @staticmethod
+    def __schedule_generic_task(
+        task_function,
+        task_input,
+        call_id,
+        call_name,
+    ):
+        job_id = str(uuid.uuid4())
+        results_dir = os.path.join(settings.BASE_RESULTS_DIR, "calls", call_name, job_id)
+        os.makedirs(results_dir, exist_ok=True)
 
-    def raise_if_closed(self, from_obj: bool = True, pk=None):
-        call = self.get_object() if from_obj else Call.objects.get(pk=pk)
-        if call.status == CallStatus.CLOSED:
-            raise ValidationError("Operation blocked, call is CLOSED.")
-        return call
-
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        task_function = setup_call
-        task_function.apply_async(
-            args=[instance.call_id],
-            task_name=task_function.__name__,
-            call_id=instance.call_id,
-            username=self.current_user(),
-        )
-
-    def perform_update(self, serializer):
-        initial_instance = self.raise_if_closed()
-        updated_instance = serializer.save()
-        if initial_instance.status != CallStatus.CLOSED and updated_instance.status == CallStatus.CLOSED:
-            task_function = close_call
-            task_function.apply_async(
-                args=[updated_instance.call_id],
-                task_name=task_function.__name__,
-                call_id=updated_instance.call_id,
-                username=self.current_user(),
-            )
-
-    @action(detail=False, methods=["POST"], url_path=r"discover-runs")
-    def discover_runs(self, request):
-        call_id = request.data.get("call_id")
-
-        self.raise_if_closed(from_obj=False, pk=call_id)
-        task_function = discover_runs
-        task = task_function.apply_async(
-            args=[call_id], task_name=task_function.__name__, call_id=call_id, username=self.current_user()
-        )
-        return Response({"task_id": task.id, "status": task.status})
-
-    @action(detail=False, methods=["POST"], url_path=r"generate-lumiloss-plots")
-    def generate_lumiloss_plots(self, request):
-        call_id = request.data.get("call_id")
-        mode = request.data.get("mode")
-        runs = request.data.get("runs", [])
-
-        if len(runs) == 0:
-            raise ValidationError("Input runs not included.")
-
-        self.raise_if_closed(from_obj=False, pk=call_id)
-        task_function = generate_lumiloss_plots
-        task = task_function.apply_async(
-            args=[call_id, mode, runs],
-            task_name=task_function.__name__,
+        # Store job
+        job = CallJob.objects.create(
+            id=job_id,
             call_id=call_id,
-            username=self.current_user(),
+            name=task_function.__name__,
+            params=task_input,
+            results_dir=results_dir,
+        )
+
+        # Schedule task
+        _ = task_function.delay(job_id)
+
+        return job
+
+    @block_if_closed
+    def perform_update(self, call: Call, serializer):
+        serializer.save()
+
+    @action(detail=True, methods=["POST"], url_path=r"discover-runs")
+    @block_if_closed
+    def discover_runs(self, call: Call, request, pk=None):
+        task = self.__schedule_generic_task(
+            task_function=discover_runs_task, task_input=request.data, call_id=call.call_id, call_name=call.call_name
+        )
+        return Response({"task_id": task.id, "status": task.status})
+
+    @action(detail=True, methods=["POST"], url_path=r"run-full-certification")
+    @block_if_closed
+    def run_full_certification(self, call: Call, request, pk=None):
+        task = self.__schedule_generic_task(
+            task_function=run_full_certification_task,
+            task_input=request.data,
+            call_id=call.call_id,
+            call_name=call.call_name,
         )
         return Response({"task_id": task.id, "status": task.status})
 
 
-class CallsTasksViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = CallTask.objects.all().order_by("id")
-    serializer_class = CallTaskSerializer
-    filterset_class = CallTaskFilter
+class CallJobsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = CallJob.objects.all().order_by("-created_at")
+    serializer_class = CallJobSerializer
+    filterset_class = CallJobsFilter
     filter_backends: ClassVar[list[DjangoFilterBackend]] = [DjangoFilterBackend]

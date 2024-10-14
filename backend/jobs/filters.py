@@ -2,14 +2,15 @@ from typing import ClassVar
 
 from django_filters import rest_framework as filters
 
-from .models import CallJob
+from .models import Job
 
 
-class CallJobsFilter(filters.FilterSet):
+class JobFilter(filters.FilterSet):
     class Meta:
-        model = CallJob
+        model = Job
         fields: ClassVar[dict[str, list[str]]] = {
-            "call_id": ["exact"],
             "name": ["exact"],
+            "action": ["exact"],
+            "created_by": ["exact"],
             "status": ["exact"],
         }

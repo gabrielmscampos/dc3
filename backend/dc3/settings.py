@@ -4,6 +4,7 @@ from pathlib import Path
 import dj_database_url
 from corsheaders.defaults import default_headers
 from decouple import config
+from libdc3.config import dc3_config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "calls.apps.CallsConfig",
+    "jobs.apps.JobsConfig",
     "files.apps.FilesConfig",
     "cern_auth.apps.CERNAuthConfig",
 ]
@@ -178,7 +180,7 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 900}
 
 # Task
-UNAUTHENTICATED_USER = "unauth-user"
+UNAUTHENTICATED_USER = "unknown-user"
 BASE_RESULTS_DIR = config("DJANGO_BASE_RESULTS_DIR")
 KEYTAB_USR = config("DJANGO_KEYTAB_USR")
 KEYTAB_PWD = config("DJANGO_KEYTAB_PWD")
@@ -187,6 +189,12 @@ KEY_FPATH = config("DJANGO_KEY_FPATH")
 RR_SSO_CLIENT_ID = config("DJANGO_RR_SSO_CLIENT_ID")
 RR_SSO_CLIENT_SECRET = config("DJANGO_RR_SSO_CLIENT_SECRET")
 
-# RR api client package requires exactly those two env variables to worl
+# Config RR api client
 os.environ["SSO_CLIENT_ID"] = RR_SSO_CLIENT_ID
 os.environ["SSO_CLIENT_SECRET"] = RR_SSO_CLIENT_SECRET
+
+# Config libdc3
+dc3_config.set_keytab_usr(KEYTAB_USR)
+dc3_config.set_keytab_pwd(KEYTAB_PWD)
+dc3_config.set_auth_cert_path(CERT_FPATH)
+dc3_config.set_auth_key_path(KEY_FPATH)
