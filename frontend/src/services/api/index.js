@@ -72,33 +72,366 @@ const closeCall = async ({ callId }) => {
   return response.data
 }
 
-const scheduleDiscoverRuns = async ({ callId }) => {
-  const endpoint = `${API_URL}/calls/discover-runs/`
-  const response = await axiosApiInstance.post(endpoint, { call_id: callId })
-  return response.data
-}
-
-const scheduleGenerateLumilossPlots = async ({ callId, mode, runs }) => {
-  const endpoint = `${API_URL}/calls/generate-lumiloss-plots/`
+const scheduleDiscoverRuns = async ({
+  callId,
+  brilwsVersion,
+  brilUnit,
+  brilLowLumiThr,
+  brilBeamstatus,
+  brilAmodetag,
+  brilNormtag,
+  guiLookupDatasets,
+  refreshRunsIfNeeded,
+}) => {
+  const endpoint = `${API_URL}/calls/${callId}/discover-runs/`
   const response = await axiosApiInstance.post(endpoint, {
-    call_id: callId,
-    mode,
-    runs,
+    bril_brilws_version: brilwsVersion,
+    bril_unit: brilUnit,
+    bril_low_lumi_thr: brilLowLumiThr,
+    bril_beamstatus: brilBeamstatus,
+    bril_amodetag: brilAmodetag,
+    bril_normtag: brilNormtag,
+    gui_lookup_datasets: guiLookupDatasets,
+    refresh_runs_if_needed: refreshRunsIfNeeded,
   })
   return response.data
 }
 
-const listCallsTasks = async ({ page, callId, taskId }) => {
-  const endpoint = `${API_URL}/calls-tasks/`
+const scheduleRunCallFullCertification = async ({
+  callId,
+  runTaskId,
+  runsToIgnore,
+  ignoreHLTEmergency,
+  preJsonOMSFlags,
+  goldenJsonOMSFlags,
+  goldenJsonRRFlags,
+  muonJsonOMSFlags,
+  muonJsonRRFlags,
+  targetLumilossUnit,
+  lumilossDCSFlags,
+  lumilossSubsystemsFlags,
+  lumilossSubdetectorsFlags,
+  targetAccLumiUnit,
+  accLumiYear,
+  accLumiBeamEnergy,
+  accLumiAdditionalLabelOnPlot,
+}) => {
+  const endpoint = `${API_URL}/calls/${callId}/run-full-certification/`
+  const response = await axiosApiInstance.post(endpoint, {
+    run_task_id: runTaskId,
+    runs_to_ignore: runsToIgnore,
+    ignore_hlt_emergency: ignoreHLTEmergency,
+    pre_json_oms_flags: preJsonOMSFlags,
+    golden_json_oms_flags: goldenJsonOMSFlags,
+    golden_json_rr_flags: goldenJsonRRFlags,
+    muon_json_oms_flags: muonJsonOMSFlags,
+    muon_json_rr_flags: muonJsonRRFlags,
+    target_lumiloss_unit: targetLumilossUnit,
+    lumiloss_dcs_flags: lumilossDCSFlags,
+    lumiloss_subsystems_flags: lumilossSubsystemsFlags,
+    lumiloss_subdetectors_flags: lumilossSubdetectorsFlags,
+    target_acclumi_unit: targetAccLumiUnit,
+    acc_lumi_year: accLumiYear,
+    acc_lumi_beam_energy: accLumiBeamEnergy,
+    acc_lumi_additional_label_on_plot: accLumiAdditionalLabelOnPlot,
+  })
+  return response.data
+}
+
+const listCallHistory = async ({ page, callId, name, status }) => {
+  const endpoint = `${API_URL}/call-jobs/`
   const params = sanitizedURLSearchParams(
     {
       page,
       call_id: callId,
-      task_id: taskId,
+      name,
+      status,
     },
     { repeatMode: false }
   )
   const response = await axiosApiInstance.get(endpoint, { params })
+  return response.data
+}
+
+const getJob = async ({ id }) => {
+  const endpoint = `${API_URL}/jobs/${id}/`
+  const response = await axiosApiInstance.get(endpoint)
+  return response.data
+}
+
+const listJobs = async ({ page, name, action, createdBy, status }) => {
+  const endpoint = `${API_URL}/jobs/`
+  const params = sanitizedURLSearchParams(
+    {
+      page,
+      job_name: name,
+      action_name: action,
+      created_by: createdBy,
+      status,
+    },
+    { repeatMode: false }
+  )
+  const response = await axiosApiInstance.get(endpoint, {
+    params,
+  })
+  return response.data
+}
+
+const scheduleRunJsonProduction = async ({
+  jobName,
+  className,
+  datasetName,
+  runList,
+  ignoreHLTEmergency,
+  preJsonOMSFlags,
+  goldenJsonOMSFlags,
+  goldenJsonRRFlags,
+  muonJsonOMSFlags,
+  muonJsonRRFlags,
+}) => {
+  const endpoint = `${API_URL}/jobs/run-json-production/`
+  const response = await axiosApiInstance.post(endpoint, {
+    job_name: jobName,
+    class_name: className,
+    dataset_name: datasetName,
+    run_list: runList,
+    ignore_hlt_emergency: ignoreHLTEmergency,
+    pre_json_oms_flags: preJsonOMSFlags,
+    golden_json_oms_flags: goldenJsonOMSFlags,
+    golden_json_rr_flags: goldenJsonRRFlags,
+    muon_json_oms_flags: muonJsonOMSFlags,
+    muon_json_rr_flags: muonJsonRRFlags,
+  })
+  return response.data
+}
+
+const scheduleRunLumiloss = async ({
+  jobName,
+  className,
+  datasetName,
+  includedRuns,
+  notInDCSRuns,
+  lowLumiRuns,
+  ignoreRuns,
+  ignoreHLTEmergency,
+  preJsonOMSFlags,
+  goldenJsonOMSFlags,
+  goldenJsonRRFlags,
+  muonJsonOMSFlags,
+  muonJsonRRFlags,
+  brilwsVersion,
+  brilUnit,
+  brilLowLumiThr,
+  brilBeamstatus,
+  brilAmodetag,
+  brilNormtag,
+  targetLumilossUnit,
+  lumilossDCSFlags,
+  lumilossSubsystemsFlags,
+  lumilossSubdetectorsFlags,
+}) => {
+  const endpoint = `${API_URL}/jobs/run-lumiloss/`
+  const response = await axiosApiInstance.post(endpoint, {
+    job_name: jobName,
+    class_name: className,
+    dataset_name: datasetName,
+    included_runs: includedRuns,
+    not_in_dcs_runs: notInDCSRuns,
+    low_lumi_runs: lowLumiRuns,
+    ignore_runs: ignoreRuns,
+    ignore_hlt_emergency: ignoreHLTEmergency,
+    pre_json_oms_flags: preJsonOMSFlags,
+    golden_json_oms_flags: goldenJsonOMSFlags,
+    golden_json_rr_flags: goldenJsonRRFlags,
+    muon_json_oms_flags: muonJsonOMSFlags,
+    muon_json_rr_flags: muonJsonRRFlags,
+    bril_brilws_version: brilwsVersion,
+    bril_unit: brilUnit,
+    bril_low_lumi_thr: brilLowLumiThr,
+    bril_beamstatus: brilBeamstatus,
+    bril_amodetag: brilAmodetag,
+    bril_normtag: brilNormtag,
+    target_lumiloss_unit: targetLumilossUnit,
+    lumiloss_dcs_flags: lumilossDCSFlags,
+    lumiloss_subsystems_flags: lumilossSubsystemsFlags,
+    lumiloss_subdetectors_flags: lumilossSubdetectorsFlags,
+  })
+  return response.data
+}
+
+const scheduleRunFullLumiAnalysis = async ({
+  jobName,
+  className,
+  datasetName,
+  includedRuns,
+  notInDCSRuns,
+  lowLumiRuns,
+  ignoreRuns,
+  ignoreHLTEmergency,
+  preJsonOMSFlags,
+  goldenJsonOMSFlags,
+  goldenJsonRRFlags,
+  muonJsonOMSFlags,
+  muonJsonRRFlags,
+  brilwsVersion,
+  brilUnit,
+  brilLowLumiThr,
+  brilBeamstatus,
+  brilAmodetag,
+  brilNormtag,
+  targetLumilossUnit,
+  lumilossDCSFlags,
+  lumilossSubsystemsFlags,
+  lumilossSubdetectorsFlags,
+  targetAccLumiUnit,
+  accLumiYear,
+  accLumiBeamEnergy,
+  accLumiAdditionalLabelOnPlot,
+}) => {
+  const endpoint = `${API_URL}/jobs/run-full-lumi-analysis/`
+  const response = await axiosApiInstance.post(endpoint, {
+    job_name: jobName,
+    class_name: className,
+    dataset_name: datasetName,
+    included_runs: includedRuns,
+    not_in_dcs_runs: notInDCSRuns,
+    low_lumi_runs: lowLumiRuns,
+    ignore_runs: ignoreRuns,
+    ignore_hlt_emergency: ignoreHLTEmergency,
+    pre_json_oms_flags: preJsonOMSFlags,
+    golden_json_oms_flags: goldenJsonOMSFlags,
+    golden_json_rr_flags: goldenJsonRRFlags,
+    muon_json_oms_flags: muonJsonOMSFlags,
+    muon_json_rr_flags: muonJsonRRFlags,
+    bril_brilws_version: brilwsVersion,
+    bril_unit: brilUnit,
+    bril_low_lumi_thr: brilLowLumiThr,
+    bril_beamstatus: brilBeamstatus,
+    bril_amodetag: brilAmodetag,
+    bril_normtag: brilNormtag,
+    target_lumiloss_unit: targetLumilossUnit,
+    lumiloss_dcs_flags: lumilossDCSFlags,
+    lumiloss_subsystems_flags: lumilossSubsystemsFlags,
+    lumiloss_subdetectors_flags: lumilossSubdetectorsFlags,
+    target_acclumi_unit: targetAccLumiUnit,
+    acc_lumi_year: accLumiYear,
+    acc_lumi_beam_energy: accLumiBeamEnergy,
+    acc_lumi_additional_label_on_plot: accLumiAdditionalLabelOnPlot,
+  })
+  return response.data
+}
+
+const scheduleRunAccLumi = async ({
+  jobName,
+  className,
+  datasetName,
+  runList,
+  ignoreHLTEmergency,
+  preJsonOMSFlags,
+  goldenJsonOMSFlags,
+  goldenJsonRRFlags,
+  muonJsonOMSFlags,
+  muonJsonRRFlags,
+  brilwsVersion,
+  brilUnit,
+  brilLowLumiThr,
+  brilBeamstatus,
+  brilAmodetag,
+  brilNormtag,
+  targetAccLumiUnit,
+  accLumiYear,
+  accLumiBeamEnergy,
+  accLumiAdditionalLabelOnPlot,
+}) => {
+  const endpoint = `${API_URL}/jobs/run-acc-lumi/`
+  const response = await axiosApiInstance.post(endpoint, {
+    job_name: jobName,
+    class_name: className,
+    dataset_name: datasetName,
+    run_list: runList,
+    ignore_hlt_emergency: ignoreHLTEmergency,
+    pre_json_oms_flags: preJsonOMSFlags,
+    golden_json_oms_flags: goldenJsonOMSFlags,
+    golden_json_rr_flags: goldenJsonRRFlags,
+    muon_json_oms_flags: muonJsonOMSFlags,
+    muon_json_rr_flags: muonJsonRRFlags,
+    bril_brilws_version: brilwsVersion,
+    bril_unit: brilUnit,
+    bril_low_lumi_thr: brilLowLumiThr,
+    bril_beamstatus: brilBeamstatus,
+    bril_amodetag: brilAmodetag,
+    bril_normtag: brilNormtag,
+    target_acclumi_unit: targetAccLumiUnit,
+    acc_lumi_year: accLumiYear,
+    acc_lumi_beam_energy: accLumiBeamEnergy,
+    acc_lumi_additional_label_on_plot: accLumiAdditionalLabelOnPlot,
+  })
+  return response.data
+}
+
+const scheduleRunFullCertification = async ({
+  jobName,
+  className,
+  datasetName,
+  cycles,
+  minRun,
+  maxRun,
+  ignoreRuns,
+  ignoreHLTEmergency,
+  preJsonOMSFlags,
+  goldenJsonOMSFlags,
+  goldenJsonRRFlags,
+  muonJsonOMSFlags,
+  muonJsonRRFlags,
+  brilwsVersion,
+  brilUnit,
+  brilLowLumiThr,
+  brilBeamstatus,
+  brilAmodetag,
+  brilNormtag,
+  erasPrefix,
+  ignoreEras,
+  targetLumilossUnit,
+  lumilossDCSFlags,
+  lumilossSubsystemsFlags,
+  lumilossSubdetectorsFlags,
+  targetAccLumiUnit,
+  accLumiYear,
+  accLumiBeamEnergy,
+  accLumiAdditionalLabelOnPlot,
+}) => {
+  const endpoint = `${API_URL}/jobs/run-full-certification/`
+  const response = await axiosApiInstance.post(endpoint, {
+    job_name: jobName,
+    class_name: className,
+    dataset_name: datasetName,
+    cycles,
+    min_run: minRun,
+    max_run: maxRun,
+    ignore_runs: ignoreRuns,
+    ignore_hlt_emergency: ignoreHLTEmergency,
+    pre_json_oms_flags: preJsonOMSFlags,
+    golden_json_oms_flags: goldenJsonOMSFlags,
+    golden_json_rr_flags: goldenJsonRRFlags,
+    muon_json_oms_flags: muonJsonOMSFlags,
+    muon_json_rr_flags: muonJsonRRFlags,
+    bril_brilws_version: brilwsVersion,
+    bril_unit: brilUnit,
+    bril_low_lumi_thr: brilLowLumiThr,
+    bril_beamstatus: brilBeamstatus,
+    bril_amodetag: brilAmodetag,
+    bril_normtag: brilNormtag,
+    eras_prefix: erasPrefix,
+    ignore_eras: ignoreEras,
+    target_lumiloss_unit: targetLumilossUnit,
+    lumiloss_dcs_flags: lumilossDCSFlags,
+    lumiloss_subsystems_flags: lumilossSubsystemsFlags,
+    lumiloss_subdetectors_flags: lumilossSubdetectorsFlags,
+    target_acclumi_unit: targetAccLumiUnit,
+    acc_lumi_year: accLumiYear,
+    acc_lumi_beam_energy: accLumiBeamEnergy,
+    acc_lumi_additional_label_on_plot: accLumiAdditionalLabelOnPlot,
+  })
   return response.data
 }
 
@@ -129,12 +462,47 @@ const getFileContent = async ({ path }) => {
   return response
 }
 
-const downloadFileUrl = ({ path }) => {
+const downloadFile = async ({ path }) => {
+  const endpoint = `${API_URL}/files/download/`
   const params = sanitizedURLSearchParams({ path }, { repeatMode: false })
-  return `${API_URL}/files/download/?path=${params.get('path')}`
+  const response = await axiosApiInstance.get(endpoint, {
+    params,
+    responseType: 'blob',
+  })
+  return response
+}
+
+const genericFetchAllPages = async ({ apiMethod, params = {} }) => {
+  const allData = []
+  let nextPageExists = true
+  let page = 0
+  let errorCount = 0
+  while (nextPageExists) {
+    page++
+    try {
+      const { results, next } = await apiMethod({
+        page,
+        ...params,
+      })
+      results.forEach((e) => allData.unshift(e))
+      nextPageExists = !(next === null)
+    } catch (err) {
+      errorCount++
+    }
+  }
+
+  return {
+    results: allData,
+    count: allData.length,
+    error: errorCount,
+    totalPages: page,
+  }
 }
 
 const API = {
+  utils: {
+    genericFetchAllPages,
+  },
   auth: {
     exchange: exchangeToken,
   },
@@ -145,16 +513,27 @@ const API = {
     close: closeCall,
     schedule: {
       discoverRuns: scheduleDiscoverRuns,
-      generateLumilossPlots: scheduleGenerateLumilossPlots,
+      runCallFullCertification: scheduleRunCallFullCertification,
     },
   },
-  callsTasks: {
-    list: listCallsTasks,
+  callHistory: {
+    list: listCallHistory,
+  },
+  jobs: {
+    get: getJob,
+    list: listJobs,
+    schedule: {
+      jsonProduction: scheduleRunJsonProduction,
+      lumiloss: scheduleRunLumiloss,
+      accLumi: scheduleRunAccLumi,
+      fullLumiAnalysis: scheduleRunFullLumiAnalysis,
+      fullCertification: scheduleRunFullCertification,
+    },
   },
   files: {
     list: listFiles,
     getContent: getFileContent,
-    downloadUrl: downloadFileUrl,
+    download: downloadFile,
   },
 }
 

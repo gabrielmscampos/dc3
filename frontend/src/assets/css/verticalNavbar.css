@@ -1,0 +1,39 @@
+.vertical-navbar {
+  width: 250px;
+  height: calc(100vh - 56px);
+  position: fixed;
+  top: 56px;
+  left: 0;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto; /* Allows scrolling if the sidebar content is too long */
+}
+
+.vertical-navbar .nav-link {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: black; /* Normal text color */
+  padding: 10px;
+  border-radius: 4px; /* Optional for a rounded effect */
+  text-decoration: none; /* Remove the underline to avoid hyperlink appearance */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.vertical-navbar .nav-link:hover {
+  background-color: #e9ecef; /* Background color on hover */
+  color: #0056b3; /* Optional: Change text color on hover */
+}
+
+.vertical-navbar .nav-link.active {
+  background-color: #a28b67; /* Background color for active link */
+  color: white; /* Text color for active link */
+}
+
+.content-area {
+  margin-left: 250px; /* Same as the width of the sidebar to push content area to the right */
+  padding: 20px; /* Add padding around content */
+  height: calc(100vh - 56px); /* Adjust height based on header height */
+  overflow-y: auto; /* Allows scrolling if the content area content is too long */
+}

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
-import Swal from 'sweetalert2'
 import paginationFactory from 'react-bootstrap-table2-paginator'
 import { toast } from 'react-toastify'
 
@@ -14,7 +13,8 @@ import Table from './components/table'
 import API from '../services/api'
 import dateFormat from '../utils/date'
 
-const Calls = () => {
+const Jobs = () => {
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState([])
   const [totalSize, setTotalSize] = useState()
@@ -22,14 +22,15 @@ const Calls = () => {
 
   const columns = [
     {
-      dataField: 'call_name',
+      dataField: 'name',
       text: 'Name',
       type: 'string',
       formatter: (_, row) => {
-        const linkTo = `/call/${row.call_id}`
-        return <Link to={linkTo}>{row.call_name}</Link>
+        const linkTo = `/job/${row.id}`
+        return <Link to={linkTo}>{row.name}</Link>
       },
     },
+    { dataField: 'created_by', text: 'Created by', type: 'string' },
     { dataField: 'created_at', text: 'Created at', type: 'string' },
     { dataField: 'modified_at', text: 'Modified at', type: 'string' },
     { dataField: 'status', text: 'Status', type: 'string' },
@@ -37,7 +38,7 @@ const Calls = () => {
 
   const fetchData = ({ page }) => {
     setIsLoading(true)
-    API.calls
+    API.jobs
       .list({ page })
       .then((response) => {
         const results = response.results.map((item) => {
@@ -45,7 +46,7 @@ const Calls = () => {
             ...item,
             created_at: dateFormat(item.created_at, 'dd.MM.yyyy HH:mm:ss'),
             modified_at: dateFormat(item.modified_at, 'dd.MM.yyyy HH:mm:ss'),
-            keyField: item.call_id,
+            keyField: item.id,
           }
         })
         setData(results)
@@ -61,50 +62,8 @@ const Calls = () => {
       })
   }
 
-  const handleCreateButton = async () => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Enter details',
-      html:
-        '<input id="swal-input1" class="swal2-input" placeholder="Call Name">' +
-        '<input id="swal-input2" class="swal2-input" placeholder="Dataset Name">' +
-        '<input id="swal-input3" class="swal2-input" placeholder="Class Name">',
-      focusConfirm: false,
-      preConfirm: () => {
-        return [
-          document.getElementById('swal-input1').value,
-          document.getElementById('swal-input2').value,
-          document.getElementById('swal-input3').value,
-        ]
-      },
-      showCancelButton: true,
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Yes, create it',
-    })
-
-    if (formValues) {
-      const [callName, datasetName, className] = formValues
-      let result
-
-      try {
-        await API.calls.create({ callName, datasetName, className })
-        result = await Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'The call has been opened!',
-        })
-      } catch (error) {
-        console.error(error)
-        result = await Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'There was an issue creating the call',
-        })
-      }
-
-      if (result.isConfirmed) {
-        window.location.reload()
-      }
-    }
+  const handleJobRunner = () => {
+    navigate('/job-runner')
   }
 
   useEffect(() => {
@@ -119,9 +78,9 @@ const Calls = () => {
             className='mb-3'
             variant='primary'
             type='submit'
-            onClick={handleCreateButton}
+            onClick={handleJobRunner}
           >
-            Create call
+            Run job
           </Button>
           <Card className='text-center'>
             <Card.Body>
@@ -156,4 +115,4 @@ const Calls = () => {
   )
 }
 
-export default Calls
+export default Jobs

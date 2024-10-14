@@ -4,7 +4,8 @@ import { ToastContainer } from 'react-toastify'
 import { useAuth } from 'react-oidc-context'
 
 import { OIDC_CONFIDENTIAL_TOKEN_NS, EXCHANGED_TOKEN_EVT } from './config/env'
-import { AppNavbar, AppRoutes } from './components'
+import AppNavbar from './views/components/navbar'
+import AppRoutes from './views/routes'
 import onSigninComplete from './utils/auth'
 
 const Root = () => {
