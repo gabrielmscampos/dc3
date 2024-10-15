@@ -11,7 +11,7 @@ import Spinner from 'react-bootstrap/Spinner'
 
 import CloseCallForm from './components/forms/closeCall'
 import DiscoverRunsForm from './components/forms/discoverRuns'
-import RunCallFullCertificationForm from './components/forms/runCallFullCertification'
+import CertifyCallForm from './components/forms/certifyCall'
 import useFetchCall from './hooks/useFetchCall'
 
 const Actions = () => {
@@ -27,8 +27,8 @@ const Actions = () => {
       isDisabled: data?.disabled,
     },
     {
-      value: 'run-full-certification',
-      label: 'Run full certification',
+      value: 'certify-call',
+      label: 'Certify call',
       isDisabled: data?.disabled,
     },
   ]
@@ -39,8 +39,8 @@ const Actions = () => {
         return <CloseCallForm callId={callId} />
       case 'discover-runs':
         return <DiscoverRunsForm callId={callId} />
-      case 'run-full-certification':
-        return <RunCallFullCertificationForm callId={callId} />
+      case 'certify-call':
+        return <CertifyCallForm callId={callId} />
       default:
         return <></>
     }

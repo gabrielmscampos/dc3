@@ -16,7 +16,7 @@ import Swal from 'sweetalert2'
 import defaults from '../../../config/defaults'
 import API from '../../../services/api'
 
-const RunCallFullCertificationForm = ({ callId }) => {
+const CertifyCallForm = ({ callId }) => {
   const navigate = useNavigate()
 
   const [isLoadingRunsTasks, setIsLoadingRunsTasks] = useState(true)
@@ -124,9 +124,9 @@ const RunCallFullCertificationForm = ({ callId }) => {
     })
 
     API.calls.schedule
-      .runCallFullCertification({
+      .certifyCall({
         callId,
-        runTaskId: selectedTask.value,
+        runJobId: selectedTask.value,
         runsToIgnore,
         ignoreHLTEmergency,
         preJsonOMSFlags,
@@ -520,4 +520,4 @@ const RunCallFullCertificationForm = ({ callId }) => {
   )
 }
 
-export default RunCallFullCertificationForm
+export default CertifyCallForm

@@ -97,9 +97,9 @@ const scheduleDiscoverRuns = async ({
   return response.data
 }
 
-const scheduleRunCallFullCertification = async ({
+const scheduleCertifyCall = async ({
   callId,
-  runTaskId,
+  runJobId,
   runsToIgnore,
   ignoreHLTEmergency,
   preJsonOMSFlags,
@@ -116,9 +116,9 @@ const scheduleRunCallFullCertification = async ({
   accLumiBeamEnergy,
   accLumiAdditionalLabelOnPlot,
 }) => {
-  const endpoint = `${API_URL}/calls/${callId}/run-full-certification/`
+  const endpoint = `${API_URL}/calls/${callId}/certify-call/`
   const response = await axiosApiInstance.post(endpoint, {
-    run_task_id: runTaskId,
+    run_job_id: runJobId,
     runs_to_ignore: runsToIgnore,
     ignore_hlt_emergency: ignoreHLTEmergency,
     pre_json_oms_flags: preJsonOMSFlags,
@@ -513,7 +513,7 @@ const API = {
     close: closeCall,
     schedule: {
       discoverRuns: scheduleDiscoverRuns,
-      runCallFullCertification: scheduleRunCallFullCertification,
+      certifyCall: scheduleCertifyCall,
     },
   },
   callHistory: {

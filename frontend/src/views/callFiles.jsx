@@ -32,7 +32,7 @@ const CallFiles = () => {
         apiMethod: API.callHistory.list,
         params: {
           callId,
-          name: 'run_full_certification_task',
+          name: 'certify_call_task',
           status: 'SUCCESS',
         },
       })
