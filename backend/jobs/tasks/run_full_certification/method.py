@@ -1,9 +1,7 @@
 import json
 import os
-import traceback
 
 import matplotlib
-from celery import shared_task
 from libdc3.methods.acc_lumi_analyzer import AccLuminosityAnalyzer
 from libdc3.methods.bril_actions import BrilActions
 from libdc3.methods.era_plotter import EraPlotter
@@ -14,14 +12,11 @@ from libdc3.methods.rr_actions import RunRegistryActions
 from libdc3.methods.t0_actions import T0Actions
 from libdc3.services.caf.client import CAF
 
-from ..models import Job, JobStatus
-from ..serializers import JobSerializer
-
 
 matplotlib.use("Agg")
 
 
-def _run_full_certification(job: dict):
+def run_full_certification(job: dict):
     """
     Parameters needed:
     - class_name
@@ -385,21 +380,3 @@ def _run_full_certification(job: dict):
     acc_lumi.plot_acc_lumi_by_day()
     acc_lumi.plot_acc_lumi_by_week()
     del acc_lumi
-
-
-@shared_task
-def run_full_certification_task(job_id):
-    job = Job.objects.get(pk=job_id)
-    job.status = JobStatus.STARTED
-    job.save()
-    job_input = JobSerializer(job).data
-
-    try:
-        _run_full_certification(job_input)
-        job.status = JobStatus.SUCCESS
-        job.save()
-    except Exception as err:
-        job.status = JobStatus.FAILURE
-        job.traceback = traceback.format_exc()
-        job.save()
-        raise err

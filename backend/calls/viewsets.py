@@ -16,7 +16,7 @@ from utils.rest_framework_cern_sso.authentication import (
 from .filters import CallJobsFilter
 from .models import Call, CallJob
 from .serializers import CallJobSerializer, CallSerializer
-from .tasks import discover_runs_task, run_full_certification_task
+from .tasks import certify_call_task, discover_runs_task
 from .utils import block_if_closed
 
 
@@ -73,11 +73,11 @@ class CallsViewSet(
         )
         return Response({"task_id": task.id, "status": task.status})
 
-    @action(detail=True, methods=["POST"], url_path=r"run-full-certification")
+    @action(detail=True, methods=["POST"], url_path=r"certify-call")
     @block_if_closed
-    def run_full_certification(self, call: Call, request, pk=None):
+    def certify_call(self, call: Call, request, pk=None):
         task = self.__schedule_generic_task(
-            task_function=run_full_certification_task,
+            task_function=certify_call_task,
             task_input=request.data,
             call_id=call.call_id,
             call_name=call.call_name,

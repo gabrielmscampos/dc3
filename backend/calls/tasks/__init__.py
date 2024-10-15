@@ -1,5 +1,5 @@
-from .discover_runs import discover_runs_task
-from .run_full_certification import run_full_certification_task
+from .certify_call.task import certify_call_task
+from .discover_runs.task import discover_runs_task
 
 
-__all__ = ["discover_runs_task", "run_full_certification_task"]
+__all__ = ["discover_runs_task", "certify_call_task"]

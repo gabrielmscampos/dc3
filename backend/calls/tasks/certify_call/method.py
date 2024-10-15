@@ -1,9 +1,7 @@
 import json
 import os
-import traceback
 
 import matplotlib
-from celery import shared_task
 from libdc3.methods.acc_lumi_analyzer import AccLuminosityAnalyzer
 from libdc3.methods.bril_actions import BrilActions
 from libdc3.methods.json_producer import JsonProducer
@@ -11,14 +9,11 @@ from libdc3.methods.lumiloss_analyzer import LumilossAnalyzer
 from libdc3.methods.lumiloss_plotter import LumilossPlotter
 from libdc3.methods.rr_actions import RunRegistryActions
 
-from ..models import Call, CallJob, CallJobStatus
-from ..serializers import CallJobSerializer
-
 
 matplotlib.use("Agg")
 
 
-def _run_full_certification_task(job: dict):
+def certify_call(call_meta: dict, run_job: dict, job: dict):
     """
     Parameters needed:
     - ignore_hlt_emergency
@@ -32,20 +27,11 @@ def _run_full_certification_task(job: dict):
     - acc_lumi_beam_energy
     - acc_lumi_additional_label_on_plot
     """
-    call = Call.objects.get(pk=job["call_id"])
-    class_name, dataset_name = call.class_name, call.dataset_name
-
-    # Fetch associated discover run task and result
-    run_task = CallJob.objects.get(pk=job["params"]["run_task_id"])
-    with open(run_task.results_dir + "/results.json") as f:
-        run_task_result = json.load(f)
-    run_task = {**run_task.params, "result": run_task_result}
-
     # Get run task result
-    included_runs = [run for run in run_task["result"]["final_run_list"]]
-    low_lumi_runs = [run["run_number"] for run in run_task["result"]["low_lumi_runs"]]
-    not_in_dcs_runs = [run for run in run_task["result"]["not_in_dcs_runs"]["run_numbers"]]
-    del run_task["result"]
+    included_runs = [run for run in run_job["result"]["final_run_list"]]
+    low_lumi_runs = [run["run_number"] for run in run_job["result"]["low_lumi_runs"]]
+    not_in_dcs_runs = [run for run in run_job["result"]["not_in_dcs_runs"]["run_numbers"]]
+    del run_job["result"]
 
     # Filter discover runs result based on ignore_runs parameter
     included_runs = [run for run in included_runs if run not in job["params"]["runs_to_ignore"]]
@@ -56,7 +42,7 @@ def _run_full_certification_task(job: dict):
     run_list = sorted([*included_runs, *low_lumi_runs, *not_in_dcs_runs, *job["params"]["runs_to_ignore"]])
 
     # Fetch RR and OMS lumisection flags/bits
-    rra = RunRegistryActions(class_name=class_name, dataset_name=dataset_name)
+    rra = RunRegistryActions(class_name=call_meta["class_name"], dataset_name=call_meta["dataset_name"])
     offline_lumis = rra.multi_fetch_rr_oms_joint_lumis(run_list=run_list)
     del rra
 
@@ -83,12 +69,12 @@ def _run_full_certification_task(job: dict):
     min_run = min(run_list)
     max_run = max(run_list)
     ba = BrilActions(
-        brilws_version=run_task["bril_brilws_version"],
-        unit=run_task["bril_unit"],
-        low_lumi_thr=run_task["bril_low_lumi_thr"],
-        beamstatus=run_task["bril_beamstatus"],
-        amodetag=run_task["bril_amodetag"],
-        normtag=run_task["bril_normtag"],
+        brilws_version=run_job["bril_brilws_version"],
+        unit=run_job["bril_unit"],
+        low_lumi_thr=run_job["bril_low_lumi_thr"],
+        beamstatus=run_job["bril_beamstatus"],
+        amodetag=run_job["bril_amodetag"],
+        normtag=run_job["bril_normtag"],
     )
     bril_lumis = ba.fetch_lumis(begin=min_run, end=max_run).get("detailed")
     bril_lumis = [lumi for lumi in bril_lumis if lumi["run_number"] in run_list]
@@ -104,7 +90,7 @@ def _run_full_certification_task(job: dict):
         dc_json=golden_json,
         low_lumi_runs=low_lumi_runs,
         ignore_runs=job["params"]["runs_to_ignore"],
-        bril_unit=run_task["bril_unit"],
+        bril_unit=run_job["bril_unit"],
         target_unit=job["params"]["target_lumiloss_unit"],
     )
     lumiloss_results = lumiloss.analyze(
@@ -151,8 +137,8 @@ def _run_full_certification_task(job: dict):
     acc_lumi = AccLuminosityAnalyzer(
         dc_json=golden_json,
         bril_lumis=bril_lumis,
-        bril_amodetag=run_task["bril_amodetag"],
-        bril_unit=run_task["bril_unit"],
+        bril_amodetag=run_job["bril_amodetag"],
+        bril_unit=run_job["bril_unit"],
         target_unit=job["params"]["target_acclumi_unit"],
         year=job["params"]["acc_lumi_year"],
         beam_energy=job["params"]["acc_lumi_beam_energy"],
@@ -169,8 +155,8 @@ def _run_full_certification_task(job: dict):
     acc_lumi = AccLuminosityAnalyzer(
         dc_json=muon_json,
         bril_lumis=bril_lumis,
-        bril_amodetag=run_task["bril_amodetag"],
-        bril_unit=run_task["bril_unit"],
+        bril_amodetag=run_job["bril_amodetag"],
+        bril_unit=run_job["bril_unit"],
         target_unit=job["params"]["target_acclumi_unit"],
         year=job["params"]["acc_lumi_year"],
         beam_energy=job["params"]["acc_lumi_beam_energy"],
@@ -180,21 +166,3 @@ def _run_full_certification_task(job: dict):
     acc_lumi.plot_acc_lumi_by_day()
     acc_lumi.plot_acc_lumi_by_week()
     del muon_json, acc_lumi
-
-
-@shared_task
-def run_full_certification_task(job_id):
-    job = CallJob.objects.get(pk=job_id)
-    job.status = CallJobStatus.STARTED
-    job.save()
-    job_input = CallJobSerializer(job).data
-
-    try:
-        _run_full_certification_task(job_input)
-        job.status = CallJobStatus.SUCCESS
-        job.save()
-    except Exception as err:
-        job.status = CallJobStatus.FAILURE
-        job.traceback = traceback.format_exc()
-        job.save()
-        raise err

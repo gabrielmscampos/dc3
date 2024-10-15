@@ -1,23 +1,18 @@
 import json
 import os
-import traceback
 
 import matplotlib
-from celery import shared_task
 from libdc3.methods.bril_actions import BrilActions
 from libdc3.methods.json_producer import JsonProducer
 from libdc3.methods.lumiloss_analyzer import LumilossAnalyzer
 from libdc3.methods.lumiloss_plotter import LumilossPlotter
 from libdc3.methods.rr_actions import RunRegistryActions
 
-from ..models import Job, JobStatus
-from ..serializers import JobSerializer
-
 
 matplotlib.use("Agg")
 
 
-def _run_lumiloss_task(job: dict):
+def run_lumiloss(job: dict):
     """
     Parameters needed:
     - included_runs
@@ -144,21 +139,3 @@ def _run_lumiloss_task(job: dict):
     plots.plot_exclusive_loss_by_subdetector()
     plots.plot_fraction_of_exclusive_loss_by_subdetector()
     del lumiloss_plots_path, plots
-
-
-@shared_task
-def run_lumiloss_task(job_id):
-    job = Job.objects.get(pk=job_id)
-    job.status = JobStatus.STARTED
-    job.save()
-    job_input = JobSerializer(job).data
-
-    try:
-        _run_lumiloss_task(job_input)
-        job.status = JobStatus.SUCCESS
-        job.save()
-    except Exception as err:
-        job.status = JobStatus.FAILURE
-        job.traceback = traceback.format_exc()
-        job.save()
-        raise err

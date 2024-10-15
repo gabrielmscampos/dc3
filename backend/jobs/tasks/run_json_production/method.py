@@ -1,20 +1,15 @@
 import json
 import os
-import traceback
 
 import matplotlib
-from celery import shared_task
 from libdc3.methods.json_producer import JsonProducer
 from libdc3.methods.rr_actions import RunRegistryActions
-
-from ..models import Job, JobStatus
-from ..serializers import JobSerializer
 
 
 matplotlib.use("Agg")
 
 
-def _run_json_production_task(job: dict):
+def run_json_production(job: dict):
     """
     Parameters needed:
     - class_name
@@ -52,21 +47,3 @@ def _run_json_production_task(job: dict):
         json.dump(golden_json, f, ensure_ascii=False, indent=4)
     with open(os.path.join(base_path, "muon.json"), "w") as f:
         json.dump(muon_json, f, ensure_ascii=False, indent=4)
-
-
-@shared_task
-def run_json_production_task(job_id):
-    job = Job.objects.get(pk=job_id)
-    job.status = JobStatus.STARTED
-    job.save()
-    job_input = JobSerializer(job).data
-
-    try:
-        _run_json_production_task(job_input)
-        job.status = JobStatus.SUCCESS
-        job.save()
-    except Exception as err:
-        job.status = JobStatus.FAILURE
-        job.traceback = traceback.format_exc()
-        job.save()
-        raise err
