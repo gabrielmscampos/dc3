@@ -125,8 +125,12 @@ LOGGING = {
     },
 }
 
-# Static files
-STATIC_URL = "static/"
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -162,6 +166,7 @@ CSP_SCRIPT_SRC = [
     "'self'",
     "'unsafe-inline'",
     "'unsafe-eval'",
+    "https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js",
 ] + [f"*{host}" if host.startswith(".") else host for host in ALLOWED_HOSTS]
 CSP_CONNECT_SRC = [
     "'self'",
@@ -169,6 +174,7 @@ CSP_CONNECT_SRC = [
 CSP_STYLE_SRC = [
     "'self'",
     "'unsafe-inline'",
+    "https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css",
 ]
 CSP_FONT_SRC = [
     "'self'",
@@ -177,6 +183,7 @@ CSP_FONT_SRC = [
 CSP_IMG_SRC = [
     "'self'",
     "data:",
+    "https://unpkg.com/swagger-ui-dist@5.11.0/favicon-32x32.png",
 ]
 
 # Celery

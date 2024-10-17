@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "DC3",
+    "description": "Swagger under construction.",
+    "version": "0.1.0"
+  },
+  "paths": {}
+}
