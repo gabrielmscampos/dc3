@@ -1057,13 +1057,13 @@ zookeeper = ["kazoo (>=2.8.0)"]
 
 [[package]]
 name = "libdc3"
-version = "0.8.0"
+version = "0.9.0"
 description = "The python library for dc3 and central DC shifters"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "libdc3-0.8.0-py3-none-any.whl", hash = "sha256:85c95d6e6aed6322466b69fc82b42a351626312d1ed44b7537c7e142ae4868a8"},
-    {file = "libdc3-0.8.0.tar.gz", hash = "sha256:af474ea9516d675637ff0656858ca0db53ee9bcb7e549917fa2c20bac587d34d"},
+    {file = "libdc3-0.9.0-py3-none-any.whl", hash = "sha256:c46537d20fbf3c23c9f7548ccab3107c9f4814ddf1e1343fc2bc0838d334b22d"},
+    {file = "libdc3-0.9.0.tar.gz", hash = "sha256:f5326f0ad6a7120ffca14f752183d4faadfdbdf3c5b74ed79cee23b9d9ab4b94"},
 ]
 
 [package.dependencies]
@@ -1912,4 +1912,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7858328d4459317fb7fe6648a45733faea946ded46765e82fe156e24a5974708"
+content-hash = "5cad03d4f8d952ecf96a9b315a7201dbf5875690612cc711cc5d4089fa2fd054"
