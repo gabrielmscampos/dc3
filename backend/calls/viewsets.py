@@ -44,7 +44,7 @@ class CallsViewSet(
         call_name,
     ):
         job_id = str(uuid.uuid4())
-        results_dir = os.path.join(settings.BASE_RESULTS_DIR, "calls", call_name, job_id)
+        results_dir = os.path.join(settings.BASE_LOCAL_RESULTS_DIR, "calls", call_name, job_id)
         os.makedirs(results_dir, exist_ok=True)
 
         # Store job

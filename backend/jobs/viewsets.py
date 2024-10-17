@@ -50,7 +50,7 @@ class JobsViewSet(
     def __schedule_generic_task(self, task_function, task_input):
         job_id = str(uuid.uuid4())
         job_name = task_input.pop("job_name")
-        results_dir = os.path.join(settings.BASE_RESULTS_DIR, "jobs", job_id)
+        results_dir = os.path.join(settings.BASE_LOCAL_RESULTS_DIR, "jobs", job_id)
         os.makedirs(results_dir, exist_ok=True)
 
         # Store job

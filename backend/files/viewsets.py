@@ -24,7 +24,7 @@ class FileViewSet(viewsets.ViewSet):
 
     def list(self, request):
         dir_path = request.query_params.get("dir", "")
-        if not self.is_safe_path(settings.BASE_RESULTS_DIR, dir_path):
+        if not self.is_safe_path(settings.BASE_LOCAL_RESULTS_DIR, dir_path):
             return Response({"error": "Invalid directory path"}, status=status.HTTP_400_BAD_REQUEST)
 
         if not os.path.exists(dir_path):
@@ -47,7 +47,7 @@ class FileViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["GET"], url_path="content")
     def file_content(self, request):
         file_path = request.query_params.get("path", "")
-        if not self.is_safe_path(settings.BASE_RESULTS_DIR, file_path):
+        if not self.is_safe_path(settings.BASE_LOCAL_RESULTS_DIR, file_path):
             return Response({"error": "Invalid directory path"}, status=status.HTTP_400_BAD_REQUEST)
 
         if not os.path.exists(file_path):
@@ -75,7 +75,7 @@ class FileViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["GET"], url_path="download")
     def download_file(self, request):
         file_path = request.query_params.get("path", "")
-        if not self.is_safe_path(settings.BASE_RESULTS_DIR, file_path):
+        if not self.is_safe_path(settings.BASE_LOCAL_RESULTS_DIR, file_path):
             return Response({"error": "Invalid directory path"}, status=status.HTTP_400_BAD_REQUEST)
 
         if not os.path.exists(file_path):
