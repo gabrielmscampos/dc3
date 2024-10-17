@@ -4,6 +4,7 @@ import uuid
 from typing import ClassVar
 
 from django.conf import settings
+from django.http import HttpResponseBadRequest
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 from rest_framework.authentication import BaseAuthentication
@@ -17,10 +18,15 @@ from .filters import JobFilter
 from .models import Job
 from .serializers import JobSerializer
 from .tasks import (
+    run_acc_lumi_htcondor_task,
     run_acc_lumi_task,
+    run_full_certification_htcondor_task,
     run_full_certification_task,
+    run_full_lumi_analysis_htcondor_task,
     run_full_lumi_analysis_task,
+    run_json_production_htcondor_task,
     run_json_production_task,
+    run_lumiloss_htcondor_task,
     run_lumiloss_task,
 )
 
@@ -70,25 +76,62 @@ class JobsViewSet(
 
     @action(detail=False, methods=["POST"], url_path=r"run-json-production")
     def run_json_production(self, request, pk=None):
-        task = self.__schedule_generic_task(task_function=run_json_production_task, task_input=request.data)
+        if not request.data.get("run_list"):
+            raise HttpResponseBadRequest("cycles or min_run/max_run should be specified.")
+
+        run_list = request.data.get("run_list")
+        task_function = run_json_production_htcondor_task if len(run_list) > 150 else run_json_production_task
+        task = self.__schedule_generic_task(task_function=task_function, task_input=request.data)
         return Response({"task_id": task.id, "status": task.status})
 
     @action(detail=False, methods=["POST"], url_path=r"run-lumiloss")
     def run_lumiloss(self, request, pk=None):
-        task = self.__schedule_generic_task(task_function=run_lumiloss_task, task_input=request.data)
+        included_runs = request.data.get("included_runs")
+        not_in_dcs_runs = request.data.get("not_in_dcs_runs", [])
+        low_lumi_runs = request.data.get("low_lumi_runs", [])
+        ignore_runs = request.data.get("ignore_runs", [])
+        if not included_runs:
+            raise HttpResponseBadRequest("included_runs should be specified.")
+
+        all_runs = [*included_runs, *not_in_dcs_runs, *low_lumi_runs, *ignore_runs]
+        task_function = run_lumiloss_htcondor_task if len(all_runs) > 150 else run_lumiloss_task
+        task = self.__schedule_generic_task(task_function=task_function, task_input=request.data)
         return Response({"task_id": task.id, "status": task.status})
 
     @action(detail=False, methods=["POST"], url_path=r"run-full-lumi-analysis")
     def run_full_lumi_analysis(self, request, pk=None):
-        task = self.__schedule_generic_task(task_function=run_full_lumi_analysis_task, task_input=request.data)
+        included_runs = request.data.get("included_runs")
+        not_in_dcs_runs = request.data.get("not_in_dcs_runs", [])
+        low_lumi_runs = request.data.get("low_lumi_runs", [])
+        ignore_runs = request.data.get("ignore_runs", [])
+        if not included_runs:
+            raise HttpResponseBadRequest("included_runs should be specified.")
+
+        all_runs = [*included_runs, *not_in_dcs_runs, *low_lumi_runs, *ignore_runs]
+        task_function = run_full_lumi_analysis_htcondor_task if len(all_runs) > 150 else run_full_lumi_analysis_task
+        task = self.__schedule_generic_task(task_function=task_function, task_input=request.data)
         return Response({"task_id": task.id, "status": task.status})
 
     @action(detail=False, methods=["POST"], url_path=r"run-acc-lumi")
     def run_acc_lumi(self, request, pk=None):
-        task = self.__schedule_generic_task(task_function=run_acc_lumi_task, task_input=request.data)
+        if not request.data.get("run_list"):
+            raise HttpResponseBadRequest("cycles or min_run/max_run should be specified.")
+
+        run_list = request.data.get("run_list")
+        task_function = run_acc_lumi_htcondor_task if len(run_list) > 150 else run_acc_lumi_task
+        task = self.__schedule_generic_task(task_function=task_function, task_input=request.data)
         return Response({"task_id": task.id, "status": task.status})
 
     @action(detail=False, methods=["POST"], url_path=r"run-full-certification")
     def run_full_certification(self, request, pk=None):
-        task = self.__schedule_generic_task(task_function=run_full_certification_task, task_input=request.data)
+        if request.data.get("cycles"):
+            cycles = request.data.get("cycles")
+            task_function = run_full_certification_htcondor_task if len(cycles) > 10 else run_full_certification_task
+        elif request.data.get("min_run") and request.data.get("max_run"):
+            n_runs_max = request.data.get("max_run") - request.data.get("min_run")
+            task_function = run_full_certification_htcondor_task if n_runs_max > 150 else run_full_certification_task
+        else:
+            raise HttpResponseBadRequest("cycles or min_run/max_run should be specified.")
+
+        task = self.__schedule_generic_task(task_function=task_function, task_input=request.data)
         return Response({"task_id": task.id, "status": task.status})
