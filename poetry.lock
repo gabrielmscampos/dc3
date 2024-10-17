@@ -1781,20 +1781,6 @@ python-dotenv = "*"
 requests = "*"
 
 [[package]]
-name = "scp"
-version = "0.15.0"
-description = "scp module for paramiko"
-optional = false
-python-versions = "*"
-files = [
-    {file = "scp-0.15.0-py2.py3-none-any.whl", hash = "sha256:9e7f721e5ac563c33eb0831d0f949c6342f1c28c3bdc3b02f39d77b5ea20df7e"},
-    {file = "scp-0.15.0.tar.gz", hash = "sha256:f1b22e9932123ccf17eebf19e0953c6e9148f589f93d91b872941a696305c83f"},
-]
-
-[package.dependencies]
-paramiko = "*"
-
-[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1926,4 +1912,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "df54046599c158cde8f79bbe669c7c3dce2c9b3b26784b7337934f214e3a9f67"
+content-hash = "7858328d4459317fb7fe6648a45733faea946ded46765e82fe156e24a5974708"
