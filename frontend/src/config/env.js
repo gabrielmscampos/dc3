@@ -14,7 +14,7 @@ const OPTIONS = {
     OIDC_SCOPE: 'openid profile email',
   },
   production: {
-    API_URL: 'https://cmsdials-api.web.cern.ch/api/v1',
+    API_URL: 'https://cmsdc3-api.web.cern.ch/api/v1',
     OIDC_AUTHORITY: 'https://auth.cern.ch/auth/realms/cern/',
     OIDC_PUBLIC_CLIENT_ID: 'cms-dc3-prod-public-app',
     OIDC_SCOPE: 'openid profile email',
