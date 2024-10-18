@@ -1,0 +1,179 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend
+  namespace: cms-dc3-prod
+  labels:
+    app: backend
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/instance: backend
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: dc3
+    app.openshift.io/runtime: django
+    app.openshift.io/runtime-namespace: cms-dc3-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        deployment: backend
+      annotations:
+        eos.okd.cern.ch/mount-eos-with-credentials-from-secret: eos-credentials
+    spec:
+      initContainers:
+        - name: db-init
+          resources:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 1024Mi
+          command:
+            - bash
+            - '-c'
+            - >-
+              python manage.py migrate
+          envFrom:
+            - configMapRef:
+                name: dc3-backend-configmap
+            - secretRef:
+                name: dc3-backend-secrets
+          imagePullPolicy: Always
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/cms-dc3-prod/backend:latest
+      containers:
+        - name: backend
+          resources:
+            requests:
+              memory: 512Mi
+            limits:
+              memory: 1024Mi
+          envFrom:
+            - configMapRef:
+                name: dc3-backend-configmap
+            - secretRef:
+                name: dc3-backend-secrets
+            - secretRef:
+                name: eos-credentials
+          volumeMounts:
+            - name: staticfiles
+              mountPath: /var/www/api/
+              readOnly: false
+            - name: eos-storage
+              readOnly: true
+              mountPath: /eos
+          imagePullPolicy: Always
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/cms-dc3-prod/backend:latest
+        - name: nginx
+          resources:
+            requests:
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: staticfiles
+              mountPath: /var/www/api/
+              readOnly: true
+          imagePullPolicy: Always
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/cms-dc3-prod/nginx-unprivileged:latest
+      volumes:
+        - name: eos-storage
+          persistentVolumeClaim:
+            claimName: eos-storage
+        - name: nginx-conf
+          configMap:
+            name: backend-nginx-conf
+        - name: staticfiles
+          emptyDir: {}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: dc3-worker
+  namespace: cms-dc3-prod
+  labels:
+    app: dc3-worker
+    app.kubernetes.io/component: dc3-worker
+    app.kubernetes.io/instance: dc3-worker
+    app.kubernetes.io/name: dc3-worker
+    app.kubernetes.io/part-of: dc3
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-namespace: cms-dc3-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dc3-worker
+  template:
+    metadata:
+      labels:
+        app: dc3-worker
+        deployment: dc3-worker
+      annotations:
+        eos.okd.cern.ch/mount-eos-with-credentials-from-secret: eos-credentials
+    spec:
+      volumes:
+        - name: eos-storage
+          persistentVolumeClaim:
+            claimName: eos-storage
+      containers:
+        - name: dc3-worker
+          resources:
+            requests:
+              memory: 512Mi
+            limits:
+              memory: 3584Mi
+          command:
+            - bash
+            - '-c'
+            - >-
+              celery --app=dc3 worker --loglevel=INFO --concurrency=1
+              --autoscale=1,0 --max-tasks-per-child=1 --hostname=dc3-worker@%h
+          envFrom:
+            - configMapRef:
+                name: dc3-backend-configmap
+            - secretRef:
+                name: dc3-backend-secrets
+            - secretRef:
+                name: eos-credentials
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: eos-storage
+              readOnly: true
+              mountPath: /eos
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/cms-dc3-prod/backend:latest
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

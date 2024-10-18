@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dc3-backend-configmap
+  namespace: cms-dc3-prod
+data:
+  DJANGO_ENV: prod
+  DJANGO_DEBUG: '0'
+  DJANGO_ALLOWED_HOSTS: cmsdc3-api.web.cern.ch cmsdc3.web.cern.ch
+  DJANGO_CSRF_TRUSTED_ORIGINS: https://cmsdc3-api.web.cern.ch https://cmsdc3.web.cern.ch
+  DJANGO_CORS_ALLOWED_ORIGINS: https://cmsdc3-api.web.cern.ch https://cmsdc3.web.cern.ch
+  DJANGO_KEYCLOAK_SERVER_URL: https://auth.cern.ch/auth/
+  DJANGO_KEYCLOAK_REALM: cern
+  DJANGO_KEYCLOAK_PUBLIC_CLIENT_ID: cms-dc3-prod-public-app
+  GUNICORN_LOG_TO_STDOUT: '1'
+  GUNICORN_N_WORKERS: '3'
+  GUNICORN_TIMEOUT: '30'
